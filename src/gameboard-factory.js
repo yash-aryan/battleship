@@ -2,16 +2,15 @@
 
 import { ShipFactory } from './ship-factory';
 
-export function GameboardFactory() {
-	const shipLengths = [5, 4, 3, 3, 2],
-		incomingShots = [],
+export function GameboardFactory(shipInputs = [5, 4, 3, 3, 2]) {
+	const incomingShots = [],
 		incomingHits = [],
 		incomingMisses = [],
 		allShips = [],
 		allShipIDs = [];
 	let remainingShips;
 
-	shipLengths.forEach((input, index) => {
+	shipInputs.forEach((input, index) => {
 		const ship = ShipFactory(input);
 		allShipIDs.push({ id: index, length: ship.getInfo().length });
 		allShips.push(ship);
@@ -64,6 +63,11 @@ export function GameboardFactory() {
 		if (targetShip.isSunk()) --remainingShips;
 	}
 
+	function isAllShipSunk() {
+		if (remainingShips === 0) return true;
+		return false;
+	}
+
 	// Private Functions
 	function getTargetShip(targetPos) {
 		return allShips.find(ship => ship.isHit(targetPos));
@@ -89,5 +93,6 @@ export function GameboardFactory() {
 		canShipMoveTo,
 		moveShipTo,
 		receiveAttackAt,
+		isAllShipSunk,
 	};
 }

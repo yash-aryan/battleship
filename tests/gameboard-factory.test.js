@@ -10,6 +10,7 @@ describe('GameboardFactory()', () => {
 			canShipMoveTo: expect.any(Function),
 			moveShipTo: expect.any(Function),
 			receiveAttackAt: expect.any(Function),
+			isAllShipSunk: expect.any(Function),
 		});
 	});
 });
@@ -102,5 +103,28 @@ describe('receiveAttack', () => {
 		gameboard.receiveAttackAt([4, 5]);
 		const ship = gameboard.getShipByID(shipID);
 		expect(ship.hitCount).toBe(1);
+	});
+});
+
+describe('isAllShipSunk', () => {
+	const gameboard = GameboardFactory([2, 2]);
+	const ship1ID = gameboard.getInfo().allShipIDs[0].id;
+	const ship2ID = gameboard.getInfo().allShipIDs[1].id;
+	gameboard.moveShipTo(ship1ID, [
+		[4, 5],
+		[5, 5],
+	]);
+	gameboard.moveShipTo(ship2ID, [
+		[0, 0],
+		[1, 0],
+	]);
+
+	test('works', () => {
+		gameboard.receiveAttackAt([0, 0]);
+		gameboard.receiveAttackAt([1, 0]);
+		expect(gameboard.isAllShipSunk()).toBe(false);
+		gameboard.receiveAttackAt([4, 5]);
+		gameboard.receiveAttackAt([5, 5]);
+		expect(gameboard.isAllShipSunk()).toBe(true);
 	});
 });
