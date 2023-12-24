@@ -5,11 +5,12 @@ import { GameboardFactory } from '../src/gameboard-factory';
 describe('GameboardFactory()', () => {
 	const gameboard = GameboardFactory();
 	test('contains required properties', () => {
-		expect(gameboard).toMatchObject({
+		expect(gameboard).toStrictEqual({
 			getInfo: expect.any(Function),
-			canShipMoveTo: expect.any(Function),
+			getShipByID: expect.any(Function),
 			moveShipTo: expect.any(Function),
 			receiveAttackAt: expect.any(Function),
+			getLastShotReport: expect.any(Function),
 			isAllShipSunk: expect.any(Function),
 		});
 	});
@@ -40,7 +41,7 @@ describe('getInfo()', () => {
 	});
 });
 
-describe('getShipByID', () => {
+describe('getShipByID()', () => {
 	const gameboard = GameboardFactory();
 	const shipID = gameboard.getInfo().allShipIDs[0].id;
 	test('works', () => {
@@ -56,26 +57,7 @@ describe('getShipByID', () => {
 	});
 });
 
-describe('canShipMoveTo', () => {
-	const gameboard = GameboardFactory();
-	const shipID = gameboard.getInfo().allShipIDs[0].id;
-	test('works', () => {
-		expect(gameboard.canShipMoveTo(shipID, [0, 0])).toBe(true);
-		expect(
-			gameboard.canShipMoveTo(shipID, [
-				[0, 0],
-				[1, 0],
-				[2, 0],
-				[3, 0],
-				[4, 0],
-			])
-		).toBe(true);
-		expect(gameboard.canShipMoveTo(shipID, [0, 10])).toBe(false);
-		expect(gameboard.canShipMoveTo(shipID, [-1, 3])).toBe(false);
-	});
-});
-
-describe('moveShipTo', () => {
+describe('moveShipTo()', () => {
 	const gameboard = GameboardFactory();
 	const shipID = gameboard.getInfo().allShipIDs[0].id;
 	test('works', () => {
@@ -91,7 +73,7 @@ describe('moveShipTo', () => {
 	});
 });
 
-describe('receiveAttack', () => {
+describe('receiveAttack()', () => {
 	const gameboard = GameboardFactory();
 	const shipID = gameboard.getInfo().allShipIDs[4].id;
 	const posArr = [
@@ -106,7 +88,7 @@ describe('receiveAttack', () => {
 	});
 });
 
-describe('isAllShipSunk', () => {
+describe('isAllShipSunk()', () => {
 	const gameboard = GameboardFactory([2, 2]);
 	const ship1ID = gameboard.getInfo().allShipIDs[0].id;
 	const ship2ID = gameboard.getInfo().allShipIDs[1].id;

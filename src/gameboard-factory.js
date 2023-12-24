@@ -8,7 +8,8 @@ export function GameboardFactory(shipInputs = [5, 4, 3, 3, 2]) {
 		incomingMisses = [],
 		allShips = [],
 		allShipIDs = [];
-	let remainingShips;
+	let remainingShips,
+		lastShotReport = null;
 
 	shipInputs.forEach((input, index) => {
 		const ship = ShipFactory(input);
@@ -37,30 +38,29 @@ export function GameboardFactory(shipInputs = [5, 4, 3, 3, 2]) {
 		}))(ship);
 	}
 
-	function canShipMoveTo(id, pos) {
-		if (isOutOfBounds(pos) || isOccupiedByOtherShip(id, pos)) {
-			return false;
-		}
-		return true;
-	}
-
 	function moveShipTo(id, posArr) {
 		if (canShipMoveTo(id, posArr)) allShips[id].setPos(posArr);
 	}
 
 	function receiveAttackAt(pos) {
-		if (isRepeatShot(pos)) return;
-
 		incomingShots.push(pos);
 		const targetShip = getTargetShip(pos);
-		if (!targetShip) {
-			incomingMisses.push(pos);
-			return;
-		}
 
-		targetShip.hit();
-		incomingHits.push(pos);
-		if (targetShip.isSunk()) --remainingShips;
+		if (targetShip) {
+			targetShip.hit();
+			incomingHits.push(pos);
+			if (targetShip.isSunk()) {
+				--remainingShips;
+				lastShotReport = 'sunk';
+			} else lastShotReport = 'hit';
+		} else {
+			incomingMisses.push(pos);
+			lastShotReport = 'miss';
+		}
+	}
+
+	function getLastShotReport() {
+		return lastShotReport;
 	}
 
 	function isAllShipSunk() {
@@ -69,6 +69,13 @@ export function GameboardFactory(shipInputs = [5, 4, 3, 3, 2]) {
 	}
 
 	// Private Functions
+	function canShipMoveTo(id, pos) {
+		if (isOutOfBounds(pos) || isOccupiedByOtherShip(id, pos)) {
+			return false;
+		}
+		return true;
+	}
+
 	function getTargetShip(targetPos) {
 		return allShips.find(ship => ship.isHit(targetPos));
 	}
@@ -83,16 +90,12 @@ export function GameboardFactory(shipInputs = [5, 4, 3, 3, 2]) {
 		});
 	}
 
-	function isRepeatShot(pos) {
-		return incomingShots.some(n => n[0] === pos[0] && n[1] === pos[1]);
-	}
-
 	return {
 		getInfo,
 		getShipByID,
-		canShipMoveTo,
 		moveShipTo,
 		receiveAttackAt,
+		getLastShotReport,
 		isAllShipSunk,
 	};
 }
