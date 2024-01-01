@@ -37,16 +37,16 @@ const oceanGrid = (() => {
 		const grid = getElement();
 		posArr.forEach(pos => {
 			const cell = grid.querySelector(`[data-pos-x="${pos[0]}"][data-pos-y="${pos[1]}"]`);
-			cell.style.backgroundColor = 'lightblue';
+			cell.classList.add('occupied');
 		});
 	}
 
 	function markHit(cell) {
-		cell.style.backgroundColor = 'red';
+		cell.classList.add('hit');
 	}
 
 	function markMiss(cell) {
-		cell.style.backgroundColor = '#a0a0a0';
+		cell.classList.add('miss');
 	}
 
 	function getElement() {
@@ -71,17 +71,23 @@ const targetGrid = (() => {
 		return false;
 	}
 
+	function isCellMarked(node) {
+		if (node.classList.contains('hit') || node.classList.contains('miss')) return true;
+		return false;
+	}
+
 	function markHit(cell) {
-		cell.style.backgroundColor = 'red';
+		cell.classList.add('hit');
 	}
 
 	function markMiss(cell) {
-		cell.style.backgroundColor = '#a0a0a0';
+		cell.classList.add('miss');
 	}
 
 	return {
 		getElement,
 		isCell,
+		isCellMarked,
 		markHit,
 		markMiss,
 	};

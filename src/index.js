@@ -15,7 +15,8 @@ function main() {
 		targetGrid = dom.targetGrid.getElement();
 	let attacker = player1,
 		defender = player2,
-		winner = null;
+		winner = null,
+		roundIsOngoing = false;
 
 	createPlayers();
 	placeBothShips();
@@ -29,6 +30,10 @@ function main() {
 
 	function handleClicks(event) {
 		if (!dom.targetGrid.isCell(event.target)) return;
+		if (dom.targetGrid.isCellMarked(event.target)) return;
+		if (roundIsOngoing) return;
+
+		roundIsOngoing = true;
 		const cell = event.target;
 		if (clickedCells.includes(cell)) return;
 		clickedCells.push(cell);
@@ -39,14 +44,33 @@ function main() {
 
 		switchAttackers();
 
-		botShootsAfter(1000);
+		botShootsAfter();
 
-		async function botShootsAfter(delay) {
-			const botPos = await new Promise(res => setTimeout(res(bot.generateShot()), delay));
+		async function botShootsAfter(artificialDelay_ms = 0) {
+			const botPos = await new Promise(res => {
+				setTimeout(() => res(bot.generateShot()), artificialDelay_ms);
+			});
 			shootAt(botPos);
-			dispShotReport(dom.oceanGrid.getCell(botPos), getLastShotReport(), false);
+			const shotReport = getLastShotReport();
+			notifyShotReportToBot(shotReport);
+			dispShotReport(dom.oceanGrid.getCell(botPos), shotReport, false);
 			checkForWinner();
 			switchAttackers();
+			roundIsOngoing = false;
+		}
+	}
+
+	function notifyShotReportToBot(shotReport) {
+		switch (shotReport) {
+			case 'miss':
+				bot.notifyMiss();
+				break;
+			case 'hit':
+				bot.notifyHit();
+				break;
+			case 'sunk':
+				bot.notifyHitAndSunk();
+				break;
 		}
 	}
 

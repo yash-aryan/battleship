@@ -1,18 +1,18 @@
 #root {
-    display: flex;
-    flex-direction: column;
+	display: flex;
+	flex-direction: column;
 }
 
 #player-screen {
 	display: flex;
 	gap: 2rem;
-    align-self: center;
+	align-self: center;
 }
 
 .grid-containers {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 }
 
 #ocean-grid,
@@ -28,4 +28,14 @@
 .ocean-grid__cell,
 .target-grid__cell {
 	border: 0.5px solid black;
+}
+.occupied {
+	background-color: lightblue;
+}
+.occupied.hit,
+.hit {
+	background-color: red;
+}
+.miss {
+	background-color: #a0a0a0;
 }
