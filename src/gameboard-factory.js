@@ -38,8 +38,12 @@ export function GameboardFactory(shipInputs = [5, 4, 3, 3, 2]) {
 		}))(ship);
 	}
 
-	function moveShipTo(id, posArr) {
-		if (canShipMoveTo(id, posArr)) allShips[id].setPos(posArr);
+	function isPosOccupied(targetPos) {
+		return allShips.some(ship => ship.isOccupied(targetPos));
+	}
+
+	function moveShip(id, posArr) {
+		allShips[id].setPos(posArr);
 	}
 
 	function receiveAttackAt(pos) {
@@ -69,13 +73,6 @@ export function GameboardFactory(shipInputs = [5, 4, 3, 3, 2]) {
 	}
 
 	// Private Functions
-	function canShipMoveTo(id, pos) {
-		if (isOutOfBounds(pos) || isOccupiedByOtherShip(id, pos)) {
-			return false;
-		}
-		return true;
-	}
-
 	function getTargetShip(targetPos) {
 		return allShips.find(ship => ship.isHit(targetPos));
 	}
@@ -84,16 +81,11 @@ export function GameboardFactory(shipInputs = [5, 4, 3, 3, 2]) {
 		return targetPos.some(n => n < 0 || n > 9);
 	}
 
-	function isOccupiedByOtherShip(id, targetPos) {
-		return allShips.some((ship, index) => {
-			if (index !== id) return ship.isOccupied(targetPos);
-		});
-	}
-
 	return {
 		getInfo,
 		getShipByID,
-		moveShipTo,
+		isPosOccupied,
+		moveShip,
 		receiveAttackAt,
 		getLastShotReport,
 		isAllShipSunk,

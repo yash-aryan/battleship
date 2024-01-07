@@ -18,6 +18,38 @@ export const bot = (() => {
 		enemyShipFound = false,
 		orientationFound = false;
 
+	function generatePlacement() {
+		return [
+			[
+				[0, 0],
+				[1, 0],
+				[2, 0],
+				[3, 0],
+				[4, 0],
+			],
+			[
+				[8, 1],
+				[8, 2],
+				[8, 3],
+				[8, 4],
+			],
+			[
+				[0, 9],
+				[0, 8],
+				[0, 7],
+			],
+			[
+				[3, 7],
+				[3, 6],
+				[3, 5],
+			],
+			[
+				[6, 8],
+				[7, 8],
+			],
+		];
+	}
+
 	function generateShot() {
 		// Dequeues shot and return.
 		latestShot = posQueue.shift();
@@ -100,7 +132,7 @@ export const bot = (() => {
 
 		function pushValidAdjacents(adjacent, direction) {
 			// Early exit on any invalid or repeated pos.
-			if (!isValidPos(adjacent) || !isUniquePos(adjacent)) return;
+			if (!isValidPos(adjacent) || !isUniquePos(exploredPos, adjacent)) return;
 
 			adjacents.push(adjacent);
 			directionQueue.push(direction);
@@ -150,7 +182,7 @@ export const bot = (() => {
 				break;
 		}
 
-		return allPos.filter(pos => isValidPos(pos) && isUniquePos(pos));
+		return allPos.filter(pos => isValidPos(pos) && isUniquePos(exploredPos, pos));
 	}
 
 	function getOppositeDirection(direction) {
@@ -170,8 +202,12 @@ export const bot = (() => {
 	function getRandomPos() {
 		if (exploredPos.length === 100) return null;
 
+		return getNewUniquePos(exploredPos);
+	}
+
+	function getNewUniquePos(inputArr) {
 		let newPos = [getRandomInt(10), getRandomInt(10)];
-		while (!isUniquePos(newPos)) {
+		while (!isUniquePos(inputArr, newPos)) {
 			// Loops until unique pos is found.
 			newPos = [getRandomInt(10), getRandomInt(10)];
 		}
@@ -185,8 +221,8 @@ export const bot = (() => {
 		return false;
 	}
 
-	function isUniquePos(inputPos) {
-		return !exploredPos.some(pos => pos[0] === inputPos[0] && pos[1] === inputPos[1]);
+	function isUniquePos(inputArr, inputPos) {
+		return !inputArr.some(pos => pos[0] === inputPos[0] && pos[1] === inputPos[1]);
 	}
 
 	function getRandomInt(max) {
@@ -194,6 +230,7 @@ export const bot = (() => {
 	}
 
 	return {
+		generatePlacement,
 		generateShot,
 		notifyMiss,
 		notifyHit,

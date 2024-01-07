@@ -2,8 +2,8 @@
 
 function createGrids() {
 	const parents = document.querySelectorAll('.grid-containers');
-	parents[0].append(getGrid('ocean-grid'));
-	parents[1].append(getGrid('target-grid'));
+	parents[0].children[0].insertAdjacentElement('afterend', getGrid('ocean-grid'));
+	parents[1].children[0].insertAdjacentElement('afterend', getGrid('target-grid'));
 
 	function getGrid(gridID) {
 		const gridContainer = document.createElement('div');
@@ -27,10 +27,58 @@ function createGrids() {
 	}
 }
 
+const confirmShipBtn = (() => {
+	function getElement() {
+		return document.querySelector('#confirm-ship-btn');
+	}
+
+	function enable() {
+		getElement().removeAttribute('disabled');
+	}
+
+	function disable() {
+		getElement().setAttribute('disabled', '');
+	}
+
+	function hide() {
+		getElement().style.display = 'none';
+	}
+
+	return {
+		getElement,
+		enable,
+		disable,
+		hide,
+	};
+})();
+
 const oceanGrid = (() => {
+	function getElement() {
+		return document.querySelector('#ocean-grid');
+	}
+
 	function getCell(pos) {
 		const grid = getElement();
 		return grid.querySelector(`[data-pos-x="${pos[0]}"][data-pos-y="${pos[1]}"]`);
+	}
+
+	function isCell(node) {
+		if (node.classList.contains('ocean-grid__cell')) return true;
+		return false;
+	}
+
+	function highlightCells(posArr) {
+		const grid = getElement();
+		posArr.forEach(pos => {
+			const cell = grid.querySelector(`[data-pos-x="${pos[0]}"][data-pos-y="${pos[1]}"]`);
+			cell.classList.add('highlighted');
+		});
+	}
+
+	function unhighlightAll() {
+		getElement()
+			.querySelectorAll('.highlighted')
+			.forEach(cell => cell.classList.remove('highlighted'));
 	}
 
 	function markOccupied(posArr) {
@@ -49,12 +97,12 @@ const oceanGrid = (() => {
 		cell.classList.add('miss');
 	}
 
-	function getElement() {
-		return document.querySelector('#ocean-grid');
-	}
-
 	return {
+		getElement,
 		getCell,
+		isCell,
+		highlightCells,
+		unhighlightAll,
 		markOccupied,
 		markHit,
 		markMiss,
@@ -93,4 +141,4 @@ const targetGrid = (() => {
 	};
 })();
 
-export default { createGrids, oceanGrid, targetGrid };
+export default { createGrids, confirmShipBtn, oceanGrid, targetGrid };
