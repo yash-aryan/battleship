@@ -27,26 +27,15 @@ export function GameboardFactory(shipInputs = [5, 4, 3, 3, 2]) {
 		};
 	}
 
-	function getShipByID(id) {
-		const ship = allShips[id];
-		return (() => ({
-			length: ship.getInfo().length,
-			isHorizontal: ship.getInfo().isHorizontal,
-			hitCount: ship.getInfo().hitCount,
-			hitbox: ship.getInfo().hitbox,
-			isOccupied: ship.isOccupied,
-		}))(ship);
+	function moveShip(id, posArr) {
+		allShips[id].setPos(posArr);
 	}
 
 	function isPosOccupied(targetPos) {
 		return allShips.some(ship => ship.isOccupied(targetPos));
 	}
 
-	function moveShip(id, posArr) {
-		allShips[id].setPos(posArr);
-	}
-
-	function receiveAttackAt(pos) {
+	function receiveAttack(pos) {
 		incomingShots.push(pos);
 		const targetShip = getTargetShip(pos);
 
@@ -83,10 +72,9 @@ export function GameboardFactory(shipInputs = [5, 4, 3, 3, 2]) {
 
 	return {
 		getInfo,
-		getShipByID,
 		isPosOccupied,
 		moveShip,
-		receiveAttackAt,
+		receiveAttack,
 		getLastShotReport,
 		isAllShipSunk,
 	};

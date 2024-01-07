@@ -7,9 +7,9 @@ describe('GameboardFactory()', () => {
 	test('contains required properties', () => {
 		expect(gameboard).toStrictEqual({
 			getInfo: expect.any(Function),
-			getShipByID: expect.any(Function),
-			moveShipTo: expect.any(Function),
-			receiveAttackAt: expect.any(Function),
+			isPosOccupied: expect.any(Function),
+			moveShip: expect.any(Function),
+			receiveAttack: expect.any(Function),
 			getLastShotReport: expect.any(Function),
 			isAllShipSunk: expect.any(Function),
 		});
@@ -41,50 +41,69 @@ describe('getInfo()', () => {
 	});
 });
 
-describe('getShipByID()', () => {
-	const gameboard = GameboardFactory();
-	const shipID = gameboard.getInfo().allShipIDs[0].id;
+describe('isPosOccupied()', () => {
+	const gameboard = GameboardFactory([5, 4, 3]);
+	const ship1ID = gameboard.getInfo().allShipIDs[0].id;
+	const ship2ID = gameboard.getInfo().allShipIDs[1].id;
+	const ship3ID = gameboard.getInfo().allShipIDs[2].id;
+	gameboard.moveShip(ship1ID, [
+		[0, 0],
+		[0, 1],
+		[0, 2],
+		[0, 3],
+		[0, 4],
+	]);
+	gameboard.moveShip(ship2ID, [
+		[8, 6],
+		[8, 5],
+		[8, 4],
+		[8, 3],
+	]);
+	gameboard.moveShip(ship3ID, [
+		[3, 0],
+		[4, 0],
+		[5, 0],
+	]);
 	test('works', () => {
-		expect(gameboard.getShipByID(shipID)).toHaveProperty('length', 5);
-		expect(gameboard.getShipByID(shipID)).toHaveProperty('isOccupied', expect.any(Function));
-	});
-
-	test('does to mutate', () => {
-		for (const prop in gameboard.getShipByID(shipID)) {
-			gameboard.getShipByID(shipID)[prop] = 'bad value';
-			expect(gameboard.getShipByID(shipID)[prop]).not.toBe('bad value');
-		}
+		expect(gameboard.isPosOccupied([8, 4])).toBe(true);
+		expect(gameboard.isPosOccupied([0, 2])).toBe(true);
+		expect(gameboard.isPosOccupied([1, 2])).toBe(true);
+		expect(gameboard.isPosOccupied([4, 0])).toBe(true);
+		expect(gameboard.isPosOccupied([4, 4])).toBe(false);
 	});
 });
 
-describe('moveShipTo()', () => {
-	const gameboard = GameboardFactory();
-	const shipID = gameboard.getInfo().allShipIDs[0].id;
+describe('getLastShotReport()', () => {
+	const gameboard = GameboardFactory([5, 4, 3]);
+	const ship1ID = gameboard.getInfo().allShipIDs[0].id;
+	const ship2ID = gameboard.getInfo().allShipIDs[1].id;
+	const ship3ID = gameboard.getInfo().allShipIDs[2].id;
+	gameboard.moveShip(ship1ID, [
+		[0, 0],
+		[0, 1],
+		[0, 2],
+		[0, 3],
+		[0, 4],
+	]);
+	gameboard.moveShip(ship2ID, [
+		[8, 6],
+		[8, 5],
+		[8, 4],
+		[8, 3],
+	]);
+	gameboard.moveShip(ship3ID, [
+		[3, 0],
+		[4, 0],
+		[5, 0],
+	]);
 	test('works', () => {
-		gameboard.moveShipTo(shipID, [
-			[0, 0],
-			[1, 0],
-			[2, 0],
-			[3, 0],
-			[4, 0],
-		]);
-		expect(gameboard.getShipByID(shipID).isOccupied([0, 0])).toBe(true);
-		expect(gameboard.getShipByID(shipID).isOccupied([4, 0])).toBe(true);
-	});
-});
-
-describe('receiveAttack()', () => {
-	const gameboard = GameboardFactory();
-	const shipID = gameboard.getInfo().allShipIDs[4].id;
-	const posArr = [
-		[4, 5],
-		[4, 4],
-	];
-	gameboard.moveShipTo(shipID, posArr);
-	test('works', () => {
-		gameboard.receiveAttackAt([4, 5]);
-		const ship = gameboard.getShipByID(shipID);
-		expect(ship.hitCount).toBe(1);
+		gameboard.receiveAttack([1, 2]);
+		expect(gameboard.getLastShotReport()).toBe('miss');
+		gameboard.receiveAttack([3, 0]);
+		expect(gameboard.getLastShotReport()).toBe('hit');
+		gameboard.receiveAttack([4, 0]);
+		gameboard.receiveAttack([5, 0]);
+		expect(gameboard.getLastShotReport()).toBe('sunk');
 	});
 });
 
@@ -92,21 +111,21 @@ describe('isAllShipSunk()', () => {
 	const gameboard = GameboardFactory([2, 2]);
 	const ship1ID = gameboard.getInfo().allShipIDs[0].id;
 	const ship2ID = gameboard.getInfo().allShipIDs[1].id;
-	gameboard.moveShipTo(ship1ID, [
+	gameboard.moveShip(ship1ID, [
 		[4, 5],
 		[5, 5],
 	]);
-	gameboard.moveShipTo(ship2ID, [
+	gameboard.moveShip(ship2ID, [
 		[0, 0],
 		[1, 0],
 	]);
 
 	test('works', () => {
-		gameboard.receiveAttackAt([0, 0]);
-		gameboard.receiveAttackAt([1, 0]);
+		gameboard.receiveAttack([0, 0]);
+		gameboard.receiveAttack([1, 0]);
 		expect(gameboard.isAllShipSunk()).toBe(false);
-		gameboard.receiveAttackAt([4, 5]);
-		gameboard.receiveAttackAt([5, 5]);
+		gameboard.receiveAttack([4, 5]);
+		gameboard.receiveAttack([5, 5]);
 		expect(gameboard.isAllShipSunk()).toBe(true);
 	});
 });

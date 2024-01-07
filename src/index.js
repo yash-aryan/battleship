@@ -73,7 +73,7 @@ function main() {
 		}
 
 		function shootAt(pos) {
-			defender.receiveAttackAt(pos);
+			defender.receiveAttack(pos);
 			if (isWinnerFound()) winner = attacker;
 		}
 
