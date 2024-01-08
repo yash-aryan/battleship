@@ -20,15 +20,24 @@ export function GameboardFactory(shipInputs = [5, 4, 3, 3, 2]) {
 
 	function getInfo() {
 		return {
-			allShipIDs,
 			remainingShips,
 			hits: incomingHits,
 			misses: incomingMisses,
 		};
 	}
 
+	function getAllShipIDs() {
+		return allShipIDs;
+	}
+
 	function moveShip(id, posArr) {
 		allShips[id].setPos(posArr);
+	}
+
+	function getAllOccupiedPos(id) {
+		const hitbox = allShips[id].getInfo().hitbox;
+		const padding = allShips[id].getInfo().padding;
+		return hitbox.concat(padding);
 	}
 
 	function isPosOccupied(targetPos) {
@@ -66,12 +75,10 @@ export function GameboardFactory(shipInputs = [5, 4, 3, 3, 2]) {
 		return allShips.find(ship => ship.isHit(targetPos));
 	}
 
-	function isOutOfBounds(targetPos) {
-		return targetPos.some(n => n < 0 || n > 9);
-	}
-
 	return {
 		getInfo,
+		getAllShipIDs,
+		getAllOccupiedPos,
 		isPosOccupied,
 		moveShip,
 		receiveAttack,

@@ -6,49 +6,18 @@ Bot has 3 phases:
 - orientation phase: To find orientation(horizontal/vertical) on the same enemy ship by getting 2nd hit.
 - follow-up phase: To shoot follow-up hits in the same orientation until sunk.
 
+After every shot, bot must be notified of it's last shot report.
 New shots are queued in advanced during each phase, and queue is cleared when advancing into next phase.
 */
 
 export const bot = (() => {
 	const exploredPos = [],
-		posQueue = [getRandomPos()],
+		posQueue = [getRandomShot()],
 		directionQueue = [];
 	let latestShot = null,
 		firstHit = null,
 		enemyShipFound = false,
 		orientationFound = false;
-
-	function generatePlacement() {
-		return [
-			[
-				[0, 0],
-				[1, 0],
-				[2, 0],
-				[3, 0],
-				[4, 0],
-			],
-			[
-				[8, 1],
-				[8, 2],
-				[8, 3],
-				[8, 4],
-			],
-			[
-				[0, 9],
-				[0, 8],
-				[0, 7],
-			],
-			[
-				[3, 7],
-				[3, 6],
-				[3, 5],
-			],
-			[
-				[6, 8],
-				[7, 8],
-			],
-		];
-	}
 
 	function generateShot() {
 		// Dequeues shot and return.
@@ -69,7 +38,7 @@ export const bot = (() => {
 			directionQueue.shift();
 		} else {
 			// Queues random pos until enemy ship is found.
-			posQueue.push(getRandomPos());
+			posQueue.push(getRandomShot());
 		}
 	}
 
@@ -106,7 +75,7 @@ export const bot = (() => {
 		enemyShipFound = false;
 		orientationFound = false;
 		firstHit = null;
-		posQueue.push(getRandomPos());
+		posQueue.push(getRandomShot());
 	}
 
 	function resetFull() {
@@ -199,15 +168,12 @@ export const bot = (() => {
 		}
 	}
 
-	function getRandomPos() {
+	function getRandomShot() {
+		// Returns unique/unexplored random positions.
 		if (exploredPos.length === 100) return null;
 
-		return getNewUniquePos(exploredPos);
-	}
-
-	function getNewUniquePos(inputArr) {
 		let newPos = [getRandomInt(10), getRandomInt(10)];
-		while (!isUniquePos(inputArr, newPos)) {
+		while (!isUniquePos(exploredPos, newPos)) {
 			// Loops until unique pos is found.
 			newPos = [getRandomInt(10), getRandomInt(10)];
 		}
@@ -215,22 +181,24 @@ export const bot = (() => {
 	}
 
 	function isValidPos(inputPos) {
+		// Returns TRUE if both X & Y coordinates are within grid limits; else returns FALSE.
 		if (inputPos[0] >= 0 && inputPos[0] < 10 && inputPos[1] >= 0 && inputPos[1] < 10) {
 			return true;
 		}
 		return false;
 	}
 
-	function isUniquePos(inputArr, inputPos) {
-		return !inputArr.some(pos => pos[0] === inputPos[0] && pos[1] === inputPos[1]);
+	function isUniquePos(allPos, inputPos) {
+		// Returns TRUE if allPos does not contain the inputPos; else returns FALSE.
+		return !allPos.some(pos => pos[0] === inputPos[0] && pos[1] === inputPos[1]);
 	}
 
 	function getRandomInt(max) {
+		// Returns random INT from 0 upto max.
 		return Math.floor(Math.random() * max);
 	}
 
 	return {
-		generatePlacement,
 		generateShot,
 		notifyMiss,
 		notifyHit,

@@ -7,7 +7,7 @@ export function ShipFactory(length) {
 		padding = [];
 
 	function getInfo() {
-		return { length, isHorizontal, hitCount, hitbox };
+		return { length, isHorizontal, hitCount, hitbox, padding };
 	}
 
 	function hit() {

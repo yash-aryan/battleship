@@ -8,12 +8,13 @@ import { GameboardFactory } from './gameboard-factory';
 main();
 
 function main() {
-	const confirmBtn = dom.confirmShipBtn.getElement();
+	const shipLengths = [5, 4, 3, 3, 2],
+		confirmBtn = dom.confirmShipBtn.getElement();
 	let attacker = { name: 'Player', isHuman: true, ...GameboardFactory() },
 		defender = { name: 'Bot Azur', isHuman: false, ...GameboardFactory() };
 
 	dom.createGrids();
-	setupShipsBot(defender);
+	setupShipsBot(defender, shipLengths);
 	setupShipsManually(attacker, dom.confirmShipBtn.enable);
 	confirmBtn.addEventListener('click', startShootPhase);
 
@@ -117,17 +118,70 @@ function dispShotReport(cell, shotReport, attackerIsHuman) {
 	}
 }
 
-function setupShipsBot(player) {
-	bot.generatePlacement().forEach((posArr, index) => {
-		const botShipID = player.getInfo().allShipIDs[index].id;
-		player.moveShip(botShipID, posArr);
+function setupShipsBot(player, shipLengths) {
+	const allShipPos = [];
+
+	shipLengths.forEach((length, index) => {
+		const botShipID = player.getAllShipIDs()[index].id;
+		const shipPos = generateShipPos(length, allShipPos);
+		player.moveShip(botShipID, shipPos);
+		allShipPos.push(...player.getAllOccupiedPos(botShipID));
 	});
+
+	function generateShipPos(shipLength, allOccupiedPos) {
+		const shipPos = [],
+			isHorizontal = !!getRandomInt(2);
+
+		do {
+			const head = getNewHead();
+			shipPos.length = 0;
+			shipPos.push(...generatePosAll(head));
+			// Loop until ship pos is filled with only valid and unique pos.
+		} while (shipPos.length !== shipLength);
+
+		return shipPos;
+
+		function getNewHead() {
+			let newPos = [getRandomInt(10), getRandomInt(10)];
+			while (isPosOccupied(newPos)) {
+				// Loops until unique pos is found.
+				newPos = [getRandomInt(10), getRandomInt(10)];
+			}
+			return newPos;
+		}
+
+		function generatePosAll(head) {
+			// Generates valid coordinates based on head pos & direction.
+			const generated = [head];
+			for (let i = 1; i < shipLength; i++) {
+				if (isHorizontal) {
+					const newPos = [head[0] + i, head[1]];
+					generated.push(newPos);
+				} else {
+					const newPos = [head[0], head[1] + i];
+					generated.push(newPos);
+				}
+			}
+			return generated.filter(pos => isValidPos(pos) && !isPosOccupied(pos));
+		}
+
+		function isPosOccupied(inputPos) {
+			return allOccupiedPos.some(pos => {
+				return inputPos[0] === pos[0] && inputPos[1] === pos[1];
+			});
+		}
+
+		function getRandomInt(max) {
+			// Returns random INT from 0 upto max.
+			return Math.floor(Math.random() * max);
+		}
+	}
 }
 
 function setupShipsManually(player, callback) {
 	// Lets user place all the ships one-by-one, and then allow confirmation.
 	const oceanGrid = dom.oceanGrid.getElement(),
-		allShipIDs = [...player.getInfo().allShipIDs],
+		allShipIDs = [...player.getAllShipIDs()],
 		shipPos = [];
 	let currentShip = allShipIDs.shift(),
 		currentShipID = currentShip.id,
@@ -173,11 +227,11 @@ function setupShipsManually(player, callback) {
 		dom.oceanGrid.highlightCells(shipPos);
 	}
 
-	function getShipPos(head, shouldBeHorizontal, length) {
+	function getShipPos(head, isHorizontal, length) {
 		// Returns an array of coordinates in a certain direction.
 		const posArr = [head];
 		for (let i = 1; i < length; i++) {
-			if (shouldBeHorizontal) posArr.push([head[0] + i, head[1]]);
+			if (isHorizontal) posArr.push([head[0] + i, head[1]]);
 			else posArr.push([head[0], head[1] + i]);
 		}
 

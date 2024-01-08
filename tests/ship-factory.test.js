@@ -23,6 +23,7 @@ describe('getInfo()', () => {
 			hitCount: 0,
 			isHorizontal: null,
 			hitbox: [],
+			padding: [],
 		});
 	});
 	test('does not mutate', () => {
@@ -72,6 +73,7 @@ describe('setPos()', () => {
 		ship.setPos(posArr);
 		expect(ship.getInfo().hitbox.length).toBe(posArr.length);
 		expect(ship.getInfo().hitbox.sort()).toStrictEqual(posArr.sort());
+		console.log(ship.getInfo().padding);
 	});
 	test('works with pos[9, 9] horizontally', () => {
 		const posArr = [
