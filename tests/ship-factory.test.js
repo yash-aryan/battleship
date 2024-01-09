@@ -73,7 +73,6 @@ describe('setPos()', () => {
 		ship.setPos(posArr);
 		expect(ship.getInfo().hitbox.length).toBe(posArr.length);
 		expect(ship.getInfo().hitbox.sort()).toStrictEqual(posArr.sort());
-		console.log(ship.getInfo().padding);
 	});
 	test('works with pos[9, 9] horizontally', () => {
 		const posArr = [
@@ -164,5 +163,9 @@ describe('isOccupied()', () => {
 	ship.setPos(posArr);
 	test('works', () => {
 		occupiedArr.forEach(pos => expect(ship.isOccupied(pos)).toBe(true));
+		expect(ship.isOccupied([2, 4])).toBe(false);
+		expect(ship.isOccupied([7, 4])).toBe(false);
+		expect(ship.isOccupied([4, 6])).toBe(false);
+		expect(ship.isOccupied([4, 2])).toBe(false);
 	});
 });

@@ -43,25 +43,60 @@ export function ShipFactory(length) {
 	}
 
 	function setPadding() {
-		const point1 = hitbox[0],
-			point2 = hitbox[length - 1],
+		// Pushes valid padded positions 1 cell around the hitbox to `padding`.
+		const allPadding = [],
 			extendedHitbox = [];
-
+		extendedHitbox.push(...getParallelPaddings());
+		allPadding.push(...extendedHitbox); // To pad both ends of the hitbox.
+		pushPerpendiculars(extendedHitbox); // To pad the 4 corners around the hitbox.
+		pushPerpendiculars(hitbox); // To pad perpendicular both sides of the hitbox.
 		padding.length = 0;
+		// Push only the valid positions to final padding.
+		padding.push(
+			...allPadding.filter(pos => pos[0] >= 0 && pos[0] < 10 && pos[1] >= 0 && pos[1] < 10)
+		);
 
-		if (isHorizontal) {
-			padding.push([point1[0] - 1, point1[1]], [point2[0] + 1, point2[1]]);
-			extendedHitbox.push([point1[0] - 1, point1[1]], [point2[0] + 1, point2[1]], ...hitbox);
-			extendedHitbox.forEach(pos => {
-				padding.push([pos[0], pos[1] - 1]);
-				padding.push([pos[0], pos[1] + 1]);
+		function getParallelPaddings() {
+			// Returns 2 paddings parallel to the ship hitbox.
+			let lowEndPoint = [10, 10],
+				highEndPoint = [-1, -1],
+				paddedPos1,
+				paddedPos2;
+
+			hitbox.forEach(pos => {
+				// Finds & Sets the low & high endpoints of the hitbox.
+				let coord;
+				if (isHorizontal) coord = 0;
+				else coord = 1;
+
+				if (pos[coord] < lowEndPoint[coord]) lowEndPoint = pos;
+				else if (pos[coord] > highEndPoint[coord]) highEndPoint = pos;
 			});
-		} else {
-			padding.push([point1[0], point1[1] - 1], [point2[0], point2[1] + 1]);
-			extendedHitbox.push([point1[0], point1[1] - 1], [point2[0], point2[1] + 1], ...hitbox);
-			extendedHitbox.forEach(pos => {
-				padding.push([pos[0] - 1, pos[1]]);
-				padding.push([pos[0] + 1, pos[1]]);
+
+			// Generates padding based on endpoints.
+			if (isHorizontal) {
+				paddedPos1 = [lowEndPoint[0] - 1, lowEndPoint[1]];
+				paddedPos2 = [highEndPoint[0] + 1, highEndPoint[1]];
+			} else {
+				paddedPos1 = [lowEndPoint[0], lowEndPoint[1] - 1];
+				paddedPos2 = [highEndPoint[0], highEndPoint[1] + 1];
+			}
+
+			return [paddedPos1, paddedPos2];
+		}
+
+		function pushPerpendiculars(inputArr) {
+			let paddedPos1, paddedPos2;
+			inputArr.forEach(pos => {
+				// Push all pos & newly created perpendicular pos to allPadding.
+				if (isHorizontal) {
+					paddedPos1 = [pos[0], pos[1] - 1];
+					paddedPos2 = [pos[0], pos[1] + 1];
+				} else {
+					paddedPos1 = [pos[0] - 1, pos[1]];
+					paddedPos2 = [pos[0] + 1, pos[1]];
+				}
+				allPadding.push(paddedPos1, paddedPos2);
 			});
 		}
 	}

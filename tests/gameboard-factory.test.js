@@ -64,15 +64,15 @@ describe('getAllOccupiedPos()', () => {
 		[0, 1],
 	]);
 	test('works', () => {
-		console.log(gameboard.getAllOccupiedPos(ship1ID));
-		expect(gameboard.getAllOccupiedPos(ship1ID)).toStrictEqual([
+		const expected = [
 			[0, 0],
 			[0, 1],
 			[1, 0],
 			[1, 1],
 			[0, 2],
 			[1, 2],
-		]);
+		];
+		expect(gameboard.getAllOccupiedPos(ship1ID).sort()).toStrictEqual(expected.sort());
 	});
 });
 
