@@ -27,6 +27,21 @@ function createGrids() {
 	}
 }
 
+const rotateShipBtn = (() => {
+	function getElement() {
+		return document.querySelector('#rotate-ship-btn');
+	}
+
+	function hide() {
+		getElement().style.display = 'none';
+	}
+
+	return {
+		getElement,
+		hide,
+	};
+})();
+
 const confirmShipBtn = (() => {
 	function getElement() {
 		return document.querySelector('#confirm-ship-btn');
@@ -141,4 +156,4 @@ const targetGrid = (() => {
 	};
 })();
 
-export default { createGrids, confirmShipBtn, oceanGrid, targetGrid };
+export default { createGrids, rotateShipBtn, confirmShipBtn, oceanGrid, targetGrid };

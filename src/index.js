@@ -25,6 +25,7 @@ function main() {
 			roundIsOngoing = false;
 
 		dom.confirmShipBtn.hide();
+		dom.rotateShipBtn.hide();
 		targetGrid.addEventListener('click', handleClicks);
 
 		function handleClicks(event) {
@@ -43,7 +44,7 @@ function main() {
 
 			switchAttackers();
 
-			botShootsAfter();
+			botShootsAfter(1000);
 
 			async function botShootsAfter(artificialDelay_ms = 0) {
 				const botPos = await new Promise(res => {
@@ -181,16 +182,19 @@ function setupShipsBot(player, shipLengths) {
 function setupShipsManually(player, callback) {
 	// Lets user place all the ships one-by-one, and then allow confirmation.
 	const oceanGrid = dom.oceanGrid.getElement(),
+		rotateBtn = dom.rotateShipBtn.getElement(),
 		allShipIDs = [...player.getAllShipIDs()],
-		shipPos = [];
+		currentShipPos = [];
 	let currentShip = allShipIDs.shift(),
 		currentShipID = currentShip.id,
-		currentShipLength = currentShip.length;
+		currentShipLength = currentShip.length,
+		isShipHorizontal = true;
 
 	// Default pos & orientation.
-	shipPos.push(...getShipPos([3, 4], true, currentShipLength));
-	dispShipOverlay(shipPos);
+	currentShipPos.push(...getShipPos([3, 4], true, currentShipLength));
+	dispShipOverlay(currentShipPos);
 	oceanGrid.addEventListener('mouseover', handleHoverEvents);
+	rotateBtn.addEventListener('click', rotateCurrentShip);
 
 	function handleHoverEvents(event) {
 		// Shows overlay of where the current ship will get placed.
@@ -198,18 +202,28 @@ function setupShipsManually(player, callback) {
 
 		const head = [+event.target.dataset.posX, +event.target.dataset.posY];
 		const cell = dom.oceanGrid.getCell(head);
-		shipPos.length = 0;
-		shipPos.push(...getShipPos(head, true, currentShipLength));
-		dispShipOverlay(shipPos);
+		currentShipPos.length = 0;
+		currentShipPos.push(...getShipPos(head, isShipHorizontal, currentShipLength));
+		dispShipOverlay(currentShipPos);
 		cell.addEventListener('click', handleShipDropEvent, { once: true });
+	}
+
+	function rotateCurrentShip() {
+		if (isShipHorizontal) isShipHorizontal = false;
+		else isShipHorizontal = true;
 	}
 
 	function handleShipDropEvent() {
 		// If ideal conditions are met, then places ship at the coordinates.
-		if (player.isPosOccupied(shipPos[0]) || shipPos.length !== currentShipLength) return;
+		if (
+			player.isPosOccupied(currentShipPos[0]) ||
+			currentShipPos.length !== currentShipLength
+		) {
+			return;
+		}
 
-		player.moveShip(currentShipID, shipPos);
-		dom.oceanGrid.markOccupied(shipPos);
+		player.moveShip(currentShipID, currentShipPos);
+		dom.oceanGrid.markOccupied(currentShipPos);
 
 		if (allShipIDs.length === 0) {
 			oceanGrid.removeEventListener('mouseover', handleHoverEvents);
