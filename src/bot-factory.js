@@ -10,7 +10,7 @@ After every shot, bot must be notified of it's last shot report.
 New shots are queued in advanced during each phase, and queue is cleared when advancing into next phase.
 */
 
-export const bot = (() => {
+export function BotFactory() {
 	const exploredPos = [],
 		posQueue = [getRandomShot()],
 		directionQueue = [];
@@ -76,17 +76,6 @@ export const bot = (() => {
 		orientationFound = false;
 		firstHit = null;
 		posQueue.push(getRandomShot());
-	}
-
-	function resetFull() {
-		// Hard resets the module.
-		exploredPos.length = 0;
-		posQueue.length = 0;
-		directionQueue.length = 0;
-		enemyShipFound = false;
-		orientationFound = false;
-		firstHit = null;
-		latestShot = null;
 	}
 
 	// Private Methods
@@ -203,6 +192,5 @@ export const bot = (() => {
 		notifyMiss,
 		notifyHit,
 		notifyHitAndSunk,
-		resetFull,
 	};
-})();
+}

@@ -21,8 +21,8 @@ export function GameboardFactory(shipInputs = [5, 4, 3, 3, 2]) {
 	function getInfo() {
 		return {
 			remainingShips,
-			hits: incomingHits,
-			misses: incomingMisses,
+			hitsTaken: incomingHits,
+			avoided: incomingMisses,
 		};
 	}
 

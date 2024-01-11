@@ -23,8 +23,8 @@ describe('getInfo()', () => {
 	test('works', () => {
 		expect(gameboard.getInfo()).toMatchObject({
 			remainingShips: 5,
-			hits: [],
-			misses: [],
+			hitsTaken: [],
+			avoided: [],
 		});
 	});
 

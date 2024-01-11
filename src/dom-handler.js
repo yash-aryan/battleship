@@ -32,12 +32,17 @@ const rotateShipBtn = (() => {
 		return document.querySelector('#rotate-ship-btn');
 	}
 
+	function show() {
+		getElement().style.display = 'block';
+	}
+
 	function hide() {
 		getElement().style.display = 'none';
 	}
 
 	return {
 		getElement,
+		show,
 		hide,
 	};
 })();
@@ -55,6 +60,10 @@ const confirmShipBtn = (() => {
 		getElement().setAttribute('disabled', '');
 	}
 
+	function show() {
+		getElement().style.display = 'block';
+	}
+
 	function hide() {
 		getElement().style.display = 'none';
 	}
@@ -63,6 +72,7 @@ const confirmShipBtn = (() => {
 		getElement,
 		enable,
 		disable,
+		show,
 		hide,
 	};
 })();
@@ -112,6 +122,12 @@ const oceanGrid = (() => {
 		cell.classList.add('miss');
 	}
 
+	function reset() {
+		getElement()
+			.querySelectorAll('.ocean-grid__cell')
+			.forEach(cell => (cell.className = 'ocean-grid__cell'));
+	}
+
 	return {
 		getElement,
 		getCell,
@@ -121,6 +137,7 @@ const oceanGrid = (() => {
 		markOccupied,
 		markHit,
 		markMiss,
+		reset,
 	};
 })();
 
@@ -147,13 +164,70 @@ const targetGrid = (() => {
 		cell.classList.add('miss');
 	}
 
+	function reset() {
+		getElement()
+			.querySelectorAll('.target-grid__cell')
+			.forEach(cell => (cell.className = 'target-grid__cell'));
+	}
+
 	return {
 		getElement,
 		isCell,
 		isCellMarked,
 		markHit,
 		markMiss,
+		reset,
 	};
 })();
 
-export default { createGrids, rotateShipBtn, confirmShipBtn, oceanGrid, targetGrid };
+const resultScreen = (() => {
+	function displayResults(winnerName, loserName, winnerAccuracy, loserAccuracy, isHumanWinner) {
+		const modal = getElement(),
+			titleNode = modal.querySelector('#result__title'),
+			summaryNode = modal.querySelector('#result__summary'),
+			p1NameAccuracyNode = modal.querySelector('#accuracy-player1__name'),
+			p1AccuracyRateNode = modal.querySelector('#accuracy-player1__rate'),
+			p2NameAccuracyNode = modal.querySelector('#accuracy-player2__name'),
+			p2AccuracyRateNode = modal.querySelector('#accuracy-player2__rate');
+
+		if (isHumanWinner) {
+			titleNode.textContent = 'Brilliant!';
+			summaryNode.textContent = `${winnerName} destroys ${loserName}!`;
+		} else {
+			titleNode.textContent = 'Unlucky!';
+			summaryNode.textContent = `${winnerName} washes ${loserName}!`;
+		}
+		p1NameAccuracyNode.textContent = winnerName;
+		p2NameAccuracyNode.textContent = loserName;
+		p1AccuracyRateNode.textContent = `${winnerAccuracy}%`;
+		p2AccuracyRateNode.textContent = `${loserAccuracy}%`;
+		modal.showModal();
+	}
+
+	function hide() {
+		getElement().close();
+	}
+
+	function getResetButton() {
+		return getElement().querySelector('#reset-btn');
+	}
+
+	function getElement() {
+		return document.querySelector('#result-modal');
+	}
+
+	return {
+		displayResults,
+		hide,
+		getResetButton,
+	};
+})();
+
+export default {
+	createGrids,
+	rotateShipBtn,
+	confirmShipBtn,
+	oceanGrid,
+	targetGrid,
+	resultScreen,
+};

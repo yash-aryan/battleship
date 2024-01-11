@@ -13,6 +13,7 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	gap: 1rem;
 }
 
 #ocean-grid,
@@ -41,4 +42,54 @@
 }
 .miss {
 	background-color: #a0a0a0;
+}
+#button-container {
+	display: flex;
+	align-self: stretch;
+	justify-content: space-around;
+}
+
+#result {
+	width: 20rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 2rem;
+	padding: 3rem;
+}
+#result__title,
+#result__summary {
+	margin: 0;
+}
+
+#accuracy-stat {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem 5rem;
+}
+#accuracy-stat__title {
+	max-height: 5rem;
+	place-self: center;
+	grid-row: 1;
+	grid-column: 1 / 3;
+	margin: 0;
+	overflow: auto;
+}
+#accuracy-player1,
+#accuracy-player2 {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+#accuracy-player1 {
+	grid-row: 2;
+	grid-column: 1 / 2;
+}
+#accuracy-player2 {
+	grid-row: 2;
+	grid-column: 2 / 3;
+}
+#accuracy-player1__rate,
+#accuracy-player2__rate {
+	font-size: 2rem;
 }

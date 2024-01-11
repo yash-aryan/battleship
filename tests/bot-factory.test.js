@@ -1,21 +1,21 @@
 'use strict';
 
-import { bot } from '../src/bot-handler';
+import { BotFactory } from '../src/bot-factory';
 
 describe('bot', () => {
+	const bot = BotFactory();
 	test('works', () => {
 		expect(bot).toStrictEqual({
-			generatePlacement: expect.any(Function),
 			generateShot: expect.any(Function),
 			notifyMiss: expect.any(Function),
 			notifyHit: expect.any(Function),
 			notifyHitAndSunk: expect.any(Function),
-			resetFull: expect.any(Function),
 		});
 	});
 });
 
 describe('generateShot()', () => {
+	const bot = BotFactory();
 	test('works', () => {
 		const shot = bot.generateShot();
 		expect(shot).toStrictEqual(expect.any(Array));
