@@ -2,6 +2,8 @@ const path = require('path');
 
 module.exports = {
 	mode: 'production',
+	// mode: 'development',
+	// devtool: 'inline-source-map',
 	entry: './src/index.js',
 	output: {
 		filename: 'main.js',
@@ -12,6 +14,13 @@ module.exports = {
 			{
 				test: /\.css$/i,
 				use: ['style-loader', 'css-loader'],
+			},
+			{
+				test: /\.(png|svg|jpg|jpeg|gif)$/i,
+				type: 'asset/resource',
+				generator: {
+					filename: 'assets/[name][ext]',
+				},
 			},
 		],
 	},

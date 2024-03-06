@@ -7,13 +7,13 @@ export function GameboardFactory(shipInputs = [5, 4, 3, 3, 2]) {
 		incomingHits = [],
 		incomingMisses = [],
 		allShips = [],
-		allShipIDs = [];
+		allShipIds = [];
 	let remainingShips,
 		lastShotReport = null;
 
 	shipInputs.forEach((input, index) => {
 		const ship = ShipFactory(input);
-		allShipIDs.push({ id: index, length: ship.getInfo().length });
+		allShipIds.push({ id: index, length: ship.getInfo().length });
 		allShips.push(ship);
 	});
 	remainingShips = allShips.length;
@@ -26,8 +26,8 @@ export function GameboardFactory(shipInputs = [5, 4, 3, 3, 2]) {
 		};
 	}
 
-	function getAllShipIDs() {
-		return allShipIDs;
+	function getAllShipIds() {
+		return allShipIds;
 	}
 
 	function moveShip(id, posArr) {
@@ -77,7 +77,7 @@ export function GameboardFactory(shipInputs = [5, 4, 3, 3, 2]) {
 
 	return {
 		getInfo,
-		getAllShipIDs,
+		getAllShipIds,
 		getAllOccupiedPos,
 		isPosOccupied,
 		moveShip,
