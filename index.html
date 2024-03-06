@@ -7,37 +7,44 @@
 		<script src="./main.js" defer></script>
 	</head>
 	<body>
-		<div id="root">
-			<div id="player-screen">
-				<div class="grid-containers">
-					<h2>My Ships</h2>
-					<div id="button-container">
-						<button type="button" id="rotate-ship-btn">Rotate</button>
-						<button type="button" id="confirm-ship-btn">Confirm Ships</button>
+		<header><h1>Battleship</h1></header>
+		<main id="root" class="root">
+			<section class="content-wrap"></section>
+			<section class="content-wrap">
+				<div class="setup-controls">
+					<div class="d-pad" style="display: none">
+						<button type="button" class="d-pad__btn d-pad__up-btn"></button>
+						<button type="button" class="d-pad__btn d-pad__left-btn"></button>
+						<button type="button" class="d-pad__btn d-pad__middle-btn"></button>
+						<button type="button" class="d-pad__btn d-pad__right-btn"></button>
+						<button type="button" class="d-pad__btn d-pad__down-btn"></button>
+					</div>
+					<div class="buttons-wrap">
+						<button type="button" id="rotate-btn" class="btn rotate-btn">Rotate</button>
+						<button type="button" id="confirm-btn" class="btn confirm-btn">
+							Confirm All
+						</button>
 					</div>
 				</div>
-				<div class="grid-containers">
-					<h2>Enemy</h2>
-				</div>
-			</div>
-			<dialog id="result-modal">
-				<div id="result">
-					<h1 id="result__title"></h1>
-					<h2 id="result__summary"></h2>
-					<div id="accuracy-stat">
-						<h3 id="accuracy-stat__title">Accuracy</h3>
-						<div id="accuracy-player1">
-							<span id="accuracy-player1__name"></span>
-							<span id="accuracy-player1__rate"></span>
+			</section>
+			<dialog id="js-res-modal">
+				<div id="js-res" class="result">
+					<h2 id="js-res-title" class="result__title"></h2>
+					<p id="js-res-summary" class="result__summary"></p>
+					<div class="stats--acc">
+						<h3 class="stats__title">Accuracy</h3>
+						<div class="stats__item-wrap stats__item-wrap--left">
+							<span id="js-res-p1name" class="stats__name"></span>
+							<span id="js-res-p1acc" class="stats__val"></span>
 						</div>
-						<div id="accuracy-player2">
-							<span id="accuracy-player2__name"></span>
-							<span id="accuracy-player2__rate"></span>
+						<div class="stats__item-wrap stats__item-wrap--right">
+							<span id="js-res-p2name" class="stats__name"></span>
+							<span id="js-res-p2acc" class="stats__val"></span>
 						</div>
 					</div>
-					<button id="reset-btn">Play Again?</button>
+					<button id="reset-btn" class="btn">Play Again?</button>
 				</div>
 			</dialog>
-		</div>
+		</main>
 	</body>
 </html>
