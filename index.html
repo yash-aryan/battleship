@@ -9,15 +9,45 @@
 	<body>
 		<header><h1>Battleship</h1></header>
 		<main id="root" class="root">
-			<section class="content-wrap"></section>
-			<section class="content-wrap">
+			<section id="js-ocean-parent" class="content-wrap--ocean"></section>
+			<section id="js-target-parent" class="content-wrap--target">
 				<div class="setup-controls">
-					<div class="d-pad" style="display: none">
-						<button type="button" class="d-pad__btn d-pad__up-btn"></button>
-						<button type="button" class="d-pad__btn d-pad__left-btn"></button>
-						<button type="button" class="d-pad__btn d-pad__middle-btn"></button>
-						<button type="button" class="d-pad__btn d-pad__right-btn"></button>
-						<button type="button" class="d-pad__btn d-pad__down-btn"></button>
+					<div class="d-pad">
+						<button
+							type="button"
+							id="js-dpad-up"
+							class="d-pad__btn d-pad__up-btn"
+							aria-label="Move ship up"
+							data-input="up"
+						></button>
+						<button
+							type="button"
+							id="js-dpad-left"
+							class="d-pad__btn d-pad__left-btn"
+							aria-label="Move ship left"
+							data-input="left"
+						></button>
+						<button
+							type="button"
+							id="js-dpad-mid"
+							class="d-pad__btn d-pad__middle-btn"
+							aria-label="Confirm ship placement"
+							data-input="mid"
+						></button>
+						<button
+							type="button"
+							id="js-dpad-right"
+							class="d-pad__btn d-pad__right-btn"
+							aria-label="Move ship right"
+							data-input="right"
+						></button>
+						<button
+							type="button"
+							id="js-dpad-down"
+							class="d-pad__btn d-pad__down-btn"
+							aria-label="Move ship down"
+							data-input="down"
+						></button>
 					</div>
 					<div class="buttons-wrap">
 						<button type="button" id="rotate-btn" class="btn rotate-btn">Rotate</button>
@@ -42,7 +72,7 @@
 							<span id="js-res-p2acc" class="stats__val"></span>
 						</div>
 					</div>
-					<button id="reset-btn" class="btn">Play Again?</button>
+					<button id="res-btn" class="btn">Play Again?</button>
 				</div>
 			</dialog>
 		</main>
