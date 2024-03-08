@@ -4,23 +4,26 @@ import './style.css';
 import { BotFactory } from './bot-factory';
 import { GameboardFactory } from './gameboard-factory';
 import { oceanGrid, targetGrid } from '../dom-handlers/grids';
-import { allControls, confirmBtn, rotateBtn } from '../dom-handlers/controls';
+import { allControls, confirmBtn, dpad, rotateBtn } from '../dom-handlers/controls';
 import { result } from '../dom-handlers/result';
-window.res = result;
+
 main();
 function main() {
 	const shipLengths = [5, 4, 3, 3, 2];
 	let attacker = { name: 'Player', isHuman: true, ...GameboardFactory() },
 		defender = { name: 'Bot Azur', isHuman: false, ...GameboardFactory() },
-		botHandler = BotFactory();
+		botHandler = BotFactory(),
+		isSetupFinished = false;
 
 	oceanGrid.create();
 	confirmBtn.disable();
 	setupShipsBot(defender, shipLengths);
-	setupShipsManually(attacker, confirmBtn.enable);
+	setupShipsManually(attacker, () => (isSetupFinished = true));
 	confirmBtn.getElem().addEventListener('click', startShootPhase);
 
 	function startShootPhase() {
+		if (!isSetupFinished) return;
+
 		allControls.hide();
 		targetGrid.create();
 
@@ -234,45 +237,100 @@ function setupShipsManually(player, callback) {
 		isShipHorizontal = true;
 
 	const currShipPos = [...getShipPos([3, 4], isShipHorizontal, currShipLength)];
-
 	dispShipOverlay(currShipPos);
-	gridNode.addEventListener('mouseover', handleHoverEvents);
-	rotateBtn.getElem().addEventListener('click', rotateCurrShip);
 
-	function handleHoverEvents(event) {
-		// Shows overlay of where the current ship will get placed.
-		if (!oceanGrid.isCell(event.target)) return;
+	document.body.addEventListener('keydown', handleKey);
+	dpad.btnUp.addEventListener('click', handleDpadClick);
+	dpad.btnLeft.addEventListener('click', handleDpadClick);
+	dpad.btnRight.addEventListener('click', handleDpadClick);
+	dpad.btnDown.addEventListener('click', handleDpadClick);
+	dpad.btnMid.addEventListener('click', handleConfirm);
+	rotateBtn.getElem().addEventListener('click', handleRotation);
 
-		const head = [+event.target.dataset.posX, +event.target.dataset.posY];
-		const cell = oceanGrid.getCell(head);
+	function handleDpadClick(e) {
+		handleMovement(e.target.dataset.input);
+	}
+
+	function handleKey(e) {
+		if (e.key === ' ') return;
+
+		handleMovement(e.key);
+	}
+
+	function handleMovement(dir) {
+		let copy = [...currShipPos];
+
+		switch (dir) {
+			case 'ArrowUp':
+			case 'up':
+				copy = copy.map(pos => [pos[0], pos[1] + 1]);
+				break;
+			case 'ArrowLeft':
+			case 'left':
+				copy = copy.map(pos => [pos[0] - 1, pos[1]]);
+				break;
+			case 'ArrowRight':
+			case 'right':
+				copy = copy.map(pos => [pos[0] + 1, pos[1]]);
+				break;
+			case 'ArrowDown':
+			case 'down':
+				copy = copy.map(pos => [pos[0], pos[1] - 1]);
+				break;
+
+			default:
+				return;
+		}
+
+		// Returns if any pos is out of bounds.
+		if (!copy.every(pos => isValidPos(pos))) return;
+
 		currShipPos.length = 0;
-		currShipPos.push(...getShipPos(head, isShipHorizontal, currShipLength));
+		currShipPos.push(...copy);
 		dispShipOverlay(currShipPos);
-		cell.addEventListener('click', handleShipDropEvent, { once: true });
 	}
 
-	function rotateCurrShip() {
+	function handleRotation() {
+		// Generates possible rotation regardless of how ship is oriented.
+		let copy = [...currShipPos];
+
+		// Generate positive rotation (ship pos is added to the head).
+		const rotation1 = getShipPos(copy[0], !isShipHorizontal, copy.length, true);
+		// Generate negative rotation (ship pos is subtracted to the head).
+		const rotation2 = getShipPos(copy[0], !isShipHorizontal, copy.length, false);
+
+		// Get either one of the valid pos.
+		copy = rotation1.every(pos => isValidPos(pos)) ? rotation1 : rotation2;
+
 		isShipHorizontal = !isShipHorizontal;
+		currShipPos.length = 0;
+		currShipPos.push(...copy);
+		dispShipOverlay(copy);
 	}
 
-	function handleShipDropEvent() {
-		// Places ship at the coordinates if ship is not out of bounds & not overlapping any existing ship.
-
-		if (player.isPosOccupied(currShipPos[0])) return;
-		if (currShipPos.length !== currShipLength) return;
+	function handleConfirm() {
+		if (currShipPos.some(pos => player.isPosOccupied(pos))) return;
 
 		player.moveShip(currShipId, currShipPos);
 		oceanGrid.markOccupied(currShipPos);
 
 		if (allShipIds.length === 0) {
-			gridNode.removeEventListener('mouseover', handleHoverEvents);
-			rotateBtn.hide();
+			oceanGrid.unhighlightAll();
+			document.body.removeEventListener('keydown', handleKey);
+			dpad.btnUp.removeEventListener('click', handleMovement);
+			dpad.btnLeft.removeEventListener('click', handleMovement);
+			dpad.btnRight.removeEventListener('click', handleMovement);
+			dpad.btnDown.removeEventListener('click', handleMovement);
+			rotateBtn.disable();
+			confirmBtn.enable();
 			callback();
 		} else {
 			currShip = allShipIds.shift();
 			currShipId = currShip.id;
 			currShipLength = currShip.length;
-			dispShipOverlay(getShipPos([3, 4], true, currShipLength));
+			currShipPos.length = 0;
+			currShipPos.push(...getShipPos([3, 4], true, currShipLength));
+			dispShipOverlay(currShipPos);
 		}
 	}
 
@@ -281,15 +339,23 @@ function setupShipsManually(player, callback) {
 		oceanGrid.highlightCells(shipPos);
 	}
 
-	function getShipPos(head, isHorizontal, length) {
+	function getShipPos(head, isHorizontal, length, dirPositive = true) {
 		// Returns an array of coordinates in a certain direction.
 		const posArr = [head];
-		for (let i = 1; i < length; i++) {
-			if (isHorizontal) posArr.push([head[0] + i, head[1]]);
-			else posArr.push([head[0], head[1] + i]);
+
+		if (dirPositive) {
+			for (let i = 1; i < length; i++) {
+				if (isHorizontal) posArr.push([head[0] + i, head[1]]);
+				else posArr.push([head[0], head[1] + i]);
+			}
+		} else {
+			for (let i = 1; i < length; i++) {
+				if (isHorizontal) posArr.push([head[0] - i, head[1]]);
+				else posArr.push([head[0], head[1] - i]);
+			}
 		}
 
-		return posArr.filter(pos => isValidPos(pos));
+		return posArr;
 	}
 }
 

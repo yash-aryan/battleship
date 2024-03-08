@@ -1,4 +1,6 @@
-# Overview
+# Battleship
+
+## Overview
 
 In this project I created the iconic game of [Battleship](<https://en.wikipedia.org/wiki/Battleship_(game)>)
 
@@ -11,29 +13,29 @@ In this project I created the iconic game of [Battleship](<https://en.wikipedia.
 -   The output `index.html` & `main.js` are stored in the `dist/` directory.
 -   All of my files used to create `main.js` are stored in the `src/` directory.
 
-# Features
+## Features
 
--   **Intuitive GUI to Setup Ships**
+-   ### Intuitive GUI to Setup Ships
 
     -   Player can manually setup their ships using the GUI one-by-one.
     -   Player can rotate their ships.
     -   Grid cells get highlighted for visual feedback when moving the ship.
 
--   **Auto-Generating Ship Placements for the Bot**
+-   ### Auto-Generating Ship Placements for the Bot
 
     -   A new ship placement for the Bot is auto-generated each time a new game starts.
 
--   **Smart AI Bot**
+-   ### Smart AI Bot
 
     -   The Bot has 3 phases - explore, orientation, and follow-up. And works by having the game it's notify last hit reports to it.
     -   The Bot does not scan the grid, and determines next moves based on it's last shot report (hit, miss, sink).
     -   The Bot first explores to find any enemy ship, and then makes sure to sink it, before exploring again for the next ship.
 
--   **Reset Game / Play Again**
+-   ### Reset Game / Play Again
     -   After the game is over and winner is declared, the Player can choose to "Play Again".
     -   This Resets the game, and generates a fresh new ship placement for the Bot.
 
-# Code Overview
+## Code Overview
 
 -   I've put thought into decoupling the code as much as I can, and into following the _Single Responsibility Principle_.
 -   `index.js` holds the main game logic, and dictates the flow of events. It calls any necessary functions from other modules.
@@ -43,7 +45,7 @@ In this project I created the iconic game of [Battleship](<https://en.wikipedia.
     -   `ship-factory.js` allows creating individual ship objects.
     -   `gameboard-factory.js` allowing creating individual gameboards that contains several of these ship objects.
 
-# Project Status
+## Project Status
 
 -   [x] Create basic UI.
 -   [x] Create basic gameplay loop vs bot.

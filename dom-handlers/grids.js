@@ -4,7 +4,10 @@ export const oceanGrid = (() => {
 	const gridId = 'ocean-grid';
 
 	function create() {
-		createGrid(gridId);
+		const gridWrap = getGrid('My Screen');
+		gridWrap.id = gridId;
+		gridWrap.classList.add('grid-wrap--ocean');
+		document.querySelector('#js-ocean-parent').append(gridWrap);
 	}
 
 	function getElement() {
@@ -75,7 +78,10 @@ export const targetGrid = (() => {
 	const gridId = 'target-grid';
 
 	function create() {
-		createGrid(gridId);
+		const gridWrap = getGrid('Enemy Screen');
+		gridWrap.id = gridId;
+		gridWrap.classList.add('grid-wrap--target');
+		document.querySelector('#js-target-parent').append(gridWrap);
 	}
 
 	function getElement() {
@@ -119,23 +125,20 @@ export const targetGrid = (() => {
 	};
 })();
 
-function createGrid(gridId) {
-	const parents = document.querySelectorAll('.content-wrap');
+function getGrid(titleText) {
 	let posX = 0,
 		posY = 9;
 
 	// <div class="grid-wrap" tabindex="0"></div>
 	const gridNode = document.createElement('div');
 	gridNode.classList.add('grid');
-	gridNode.id = gridId;
 	for (let i = 0; i < 100; i++) {
 		if (posX > 9) {
 			posX = 0;
 			--posY;
 		}
 
-		const gridCell = document.createElement('button');
-		gridCell.setAttribute('type', 'button');
+		const gridCell = document.createElement('div');
 		gridCell.classList.add('grid__cell');
 		gridCell.dataset.posX = posX;
 		gridCell.dataset.posY = posY;
@@ -145,16 +148,10 @@ function createGrid(gridId) {
 
 	const titleNode = document.createElement('h2');
 	titleNode.classList.add('grid__title');
+	titleNode.textContent = titleText;
 
 	const gridWrap = document.createElement('div');
 	gridWrap.classList.add('grid-wrap');
 	gridWrap.append(titleNode, gridNode);
-
-	if (gridId === 'ocean-grid') {
-		titleNode.textContent = 'My Ships';
-		parents[0].append(gridWrap);
-	} else {
-		titleNode.textContent = 'Enemy Ships';
-		parents[1].append(gridWrap);
-	}
+	return gridWrap;
 }

@@ -26,13 +26,18 @@ export const rotateBtn = (() => {
 		return document.querySelector('#rotate-btn');
 	}
 
-	function hide() {
-		getElem().classList.add(hideClass);
+	function enable() {
+		getElem().removeAttribute('disabled');
+	}
+
+	function disable() {
+		getElem().setAttribute('disabled', '');
 	}
 
 	return {
 		getElem,
-		hide,
+		enable,
+		disable,
 	};
 })();
 
@@ -53,5 +58,38 @@ export const confirmBtn = (() => {
 		getElem,
 		enable,
 		disable,
+	};
+})();
+
+export const dpad = (() => {
+	function getBtnElem(type) {
+		let identifier;
+		switch (type) {
+			case 'up':
+				identifier = 'js-dpad-up';
+				break;
+			case 'left':
+				identifier = 'js-dpad-left';
+				break;
+			case 'mid':
+				identifier = 'js-dpad-mid';
+				break;
+			case 'right':
+				identifier = 'js-dpad-right';
+				break;
+			case 'down':
+				identifier = 'js-dpad-down';
+				break;
+		}
+
+		return document.getElementById(identifier);
+	}
+
+	return {
+		btnUp: getBtnElem('up'),
+		btnLeft: getBtnElem('left'),
+		btnMid: getBtnElem('mid'),
+		btnRight: getBtnElem('right'),
+		btnDown: getBtnElem('down'),
 	};
 })();
