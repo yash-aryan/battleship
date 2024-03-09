@@ -1,3 +1,8 @@
+:root {
+	--dpad-btn-rad: 8px;
+	--btn-rad: 8px;
+}
+
 body {
 	display: flex;
 	flex-direction: column;
@@ -15,9 +20,13 @@ p {
 	margin: 0;
 }
 
+.header {
+	align-self: center;
+}
+
 .root {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: 2fr 1fr;
 	gap: 4rem;
 }
 
@@ -43,9 +52,8 @@ p {
 	align-items: flex-start;
 }
 .grid {
-	min-width: 15rem;
-	width: clamp(15rem, 35vw, 30rem);
-	height: clamp(15rem, 35vw, 30rem);
+	aspect-ratio: 1;
+	width: max(35vw, 30rem);
 	display: grid;
 	grid-template-columns: repeat(10, 1fr);
 	grid-template-rows: repeat(10, 1fr);
@@ -70,26 +78,26 @@ p {
 
 /* setup controls */
 .setup-controls {
-	width: fit-content;
+	width: 100%;
 	display: flex;
 	flex-direction: column;
-	justify-content: flex-end;
-	align-items: center;
-	gap: 2rem;
+	align-self: flex-end;
+	gap: 4rem;
 }
 
 /* d-pad */
 .d-pad {
-	display: grid;
-	grid-template-columns: repeat(3, 3.5rem);
 	aspect-ratio: 1;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
 }
 .d-pad__btn {
-	padding: 1rem;
 	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
 	background-color: #303030;
 	border: 4px outset black;
-	border-radius: 8px;
+	border-radius: var(--dpad-btn-rad);
 	cursor: pointer;
 }
 .d-pad__btn:hover {
@@ -125,6 +133,7 @@ p {
 	display: flex;
 	flex-direction: column;
 	gap: 2rem;
+	margin-inline: 15%;
 }
 
 .result {
@@ -178,8 +187,113 @@ p {
 
 .btn {
 	padding: 1rem 2rem;
+	font-size: 1.25rem;
+	text-transform: uppercase;
+	letter-spacing: 3px;
+	font-family: monospace;
+	border-radius: var(--btn-rad);
 }
 
 .hide {
 	display: none;
+}
+
+/* upper limit on high res displays */
+@media screen and (min-width: 1920px) {
+	:root {
+		font-size: 1vw;
+		--dpad-btn-rad: 18px;
+	}
+}
+
+/* tablet */
+@media screen and (max-width: 920px) {
+	body {
+		align-items: unset;
+	}
+
+	.root {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.content-wrap--ocean,
+	.content-wrap--target {
+		display: block;
+	}
+
+	.grid-wrap {
+		align-items: center;
+	}
+	.grid {
+		width: 80%;
+	}
+
+	.setup-controls {
+		position: fixed;
+		left: 0;
+		bottom: 0;
+		align-self: unset;
+		justify-content: space-around;
+		flex-direction: row;
+		gap: 0;
+		padding-block: 1rem;
+		background: #30303070;
+		backdrop-filter: blur(4px);
+	}
+
+	.d-pad {
+		grid-template-columns: repeat(3, 4rem);
+		margin-left: 1rem;
+	}
+
+	.buttons-wrap {
+		justify-content: space-around;
+		gap: 0;
+		margin: 0;
+		margin-right: 1rem;
+	}
+}
+
+/* mobile */
+@media screen and (max-width: 500px) {
+	.grid {
+		width: 90%;
+	}
+
+	.d-pad {
+		grid-template-columns: repeat(3, 14vw);
+	}
+
+	.rotate-btn,
+	.confirm-btn {
+		padding: 0.5rem;
+		font-size: 1rem;
+	}
+
+	.result-modal {
+		width: 70vw;
+		padding: 1rem;
+	}
+	.result {
+		width: 100%;
+		padding: 0;
+	}
+	.result__title {
+		font-size: 2rem;
+	}
+	.result__summary {
+		font-size: 1.5rem;
+	}
+	.stats--acc {
+		gap: 1rem 3rem;
+		font-size: 1rem;
+	}
+	.stats__val {
+		font-size: 1.5rem;
+	}
+	.result > .btn {
+		padding: 0.5rem;
+		font-size: 1rem;
+	}
 }

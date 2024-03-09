@@ -7,7 +7,7 @@
 		<script src="./main.js" defer></script>
 	</head>
 	<body>
-		<header><h1>Battleship</h1></header>
+		<header class="header"><h1>Battleship</h1></header>
 		<main id="root" class="root">
 			<section id="js-ocean-parent" class="content-wrap--ocean"></section>
 			<section id="js-target-parent" class="content-wrap--target">
@@ -52,12 +52,12 @@
 					<div class="buttons-wrap">
 						<button type="button" id="rotate-btn" class="btn rotate-btn">Rotate</button>
 						<button type="button" id="confirm-btn" class="btn confirm-btn">
-							Confirm All
+							Start Game
 						</button>
 					</div>
 				</div>
 			</section>
-			<dialog id="js-res-modal">
+			<dialog id="js-res-modal" class="result-modal">
 				<div id="js-res" class="result">
 					<h2 id="js-res-title" class="result__title"></h2>
 					<p id="js-res-summary" class="result__summary"></p>
