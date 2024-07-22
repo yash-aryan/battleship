@@ -24,18 +24,22 @@ export const oceanGrid = (() => {
 		return false;
 	}
 
-	function highlightCells(posArr) {
+	function highlightCells(posArr, isValid) {
 		const grid = getElement();
 		posArr.forEach(pos => {
 			const cell = grid.querySelector(`[data-pos-x="${pos[0]}"][data-pos-y="${pos[1]}"]`);
-			cell.classList.add('grid__cell--highlighted');
+			const highlightClass = isValid ? 'grid__cell--valid' : 'grid__cell--invalid';
+			cell.classList.add(highlightClass);
 		});
 	}
 
 	function unhighlightAll() {
 		getElement()
-			.querySelectorAll('.grid__cell--highlighted')
-			.forEach(cell => cell.classList.remove('grid__cell--highlighted'));
+			.querySelectorAll('.grid__cell')
+			.forEach(cell => {
+				cell.classList.remove('grid__cell--valid');
+				cell.classList.remove('grid__cell--invalid');
+			});
 	}
 
 	function markOccupied(posArr) {
@@ -94,10 +98,7 @@ export const targetGrid = (() => {
 	}
 
 	function isCellMarked(node) {
-		if (
-			node.classList.contains('grid__cell--hit') ||
-			node.classList.contains('grid__cell--miss')
-		)
+		if (node.classList.contains('grid__cell--hit') || node.classList.contains('grid__cell--miss'))
 			return true;
 		return false;
 	}
@@ -129,7 +130,6 @@ function getGrid(titleText) {
 	let posX = 0,
 		posY = 9;
 
-	// <div class="grid-wrap" tabindex="0"></div>
 	const gridNode = document.createElement('div');
 	gridNode.classList.add('grid');
 	for (let i = 0; i < 100; i++) {

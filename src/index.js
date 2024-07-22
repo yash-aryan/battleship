@@ -3,9 +3,9 @@
 import './style.css';
 import { BotFactory } from './bot-factory';
 import { GameboardFactory } from './gameboard-factory';
-import { oceanGrid, targetGrid } from '../dom-handlers/grids';
-import { allControls, confirmBtn, dpad, rotateBtn } from '../dom-handlers/controls';
-import { result } from '../dom-handlers/result';
+import { oceanGrid, targetGrid } from './dom-handlers/grids';
+import { allControls, confirmBtn, dpad, rotateBtn } from './dom-handlers/controls';
+import { result } from './dom-handlers/result';
 
 main();
 function main() {
@@ -138,6 +138,7 @@ function main() {
 			targetGrid.remove();
 			setupShipsBot(defender, shipLengths);
 			allControls.show();
+			rotateBtn.enable();
 			confirmBtn.disable();
 			setupShipsManually(attacker, confirmBtn.enable);
 			result.hide();
@@ -227,24 +228,27 @@ function setupShipsBot(player, shipLengths) {
 	}
 }
 
-function setupShipsManually(player, callback) {
+function setupShipsManually(player, finishSetup) {
 	// Lets user place all the ships one-by-one, and then allow confirmation.
-	const gridNode = oceanGrid.getElement(),
-		allShipIds = [...player.getAllShipIds()];
-	let currShip = allShipIds.shift(),
-		currShipId = currShip.id,
-		currShipLength = currShip.length,
-		isShipHorizontal = true;
 
-	const currShipPos = [...getShipPos([3, 4], isShipHorizontal, currShipLength)];
-	dispShipOverlay(currShipPos);
+	const [firstShip, ...remainingShips] = player.getAllShipIds();
+	// Pre-selects first ship as current ship to be placed.
+	const currShip = {
+		id: firstShip.id,
+		length: firstShip.length,
+		isHorizontal: true,
+		pos: getShipPos([3, 4], true, firstShip.length),
+	};
+
+	// Display the first pre-selected ship
+	dispShipOverlay(currShip.pos);
 
 	document.body.addEventListener('keydown', handleKey);
 	dpad.btnUp.addEventListener('click', handleDpadClick);
 	dpad.btnLeft.addEventListener('click', handleDpadClick);
 	dpad.btnRight.addEventListener('click', handleDpadClick);
 	dpad.btnDown.addEventListener('click', handleDpadClick);
-	dpad.btnMid.addEventListener('click', handleConfirm);
+	dpad.btnMid.addEventListener('click', handlePlacement);
 	rotateBtn.getElem().addEventListener('click', handleRotation);
 
 	function handleDpadClick(e) {
@@ -258,7 +262,8 @@ function setupShipsManually(player, callback) {
 	}
 
 	function handleMovement(dir) {
-		let copy = [...currShipPos];
+		// Moves the ship in given direction.
+		let copy = [...currShip.pos];
 
 		switch (dir) {
 			case 'ArrowUp':
@@ -285,62 +290,59 @@ function setupShipsManually(player, callback) {
 		// Returns if any pos is out of bounds.
 		if (!copy.every(pos => isValidPos(pos))) return;
 
-		currShipPos.length = 0;
-		currShipPos.push(...copy);
-		dispShipOverlay(currShipPos);
+		currShip.pos.length = 0;
+		currShip.pos.push(...copy);
+		dispShipOverlay(currShip.pos);
 	}
 
 	function handleRotation() {
-		// Generates possible rotation regardless of how ship is oriented.
-		let copy = [...currShipPos];
+		// Rotates the ship regardless of how the ship is oriented.
+		let copy = [...currShip.pos];
 
-		// Generate positive rotation (ship pos is added to the head).
-		const rotation1 = getShipPos(copy[0], !isShipHorizontal, copy.length, true);
-		// Generate negative rotation (ship pos is subtracted to the head).
-		const rotation2 = getShipPos(copy[0], !isShipHorizontal, copy.length, false);
+		// Generates both +ve and -ve rotation outcome.
+		const rotation1 = getShipPos(copy[0], !currShip.isHorizontal, copy.length, true);
+		const rotation2 = getShipPos(copy[0], !currShip.isHorizontal, copy.length, false);
 
-		// Get either one of the valid pos.
+		// Gets the valid rotation outcome.
 		copy = rotation1.every(pos => isValidPos(pos)) ? rotation1 : rotation2;
 
-		isShipHorizontal = !isShipHorizontal;
-		currShipPos.length = 0;
-		currShipPos.push(...copy);
+		currShip.isHorizontal = !currShip.isHorizontal;
+		currShip.pos.length = 0;
+		currShip.pos.push(...copy);
 		dispShipOverlay(copy);
 	}
 
-	function handleConfirm() {
-		if (currShipPos.some(pos => player.isPosOccupied(pos))) return;
+	function handlePlacement() {
+		if (currShip.pos.some(pos => player.isPosOccupied(pos))) return;
 
-		player.moveShip(currShipId, currShipPos);
-		oceanGrid.markOccupied(currShipPos);
+		player.moveShip(currShip.id, currShip.pos);
+		oceanGrid.markOccupied(currShip.pos);
 
-		if (allShipIds.length === 0) {
+		if (remainingShips.length === 0) {
 			oceanGrid.unhighlightAll();
-			document.body.removeEventListener('keydown', handleKey);
-			dpad.btnUp.removeEventListener('click', handleMovement);
-			dpad.btnLeft.removeEventListener('click', handleMovement);
-			dpad.btnRight.removeEventListener('click', handleMovement);
-			dpad.btnDown.removeEventListener('click', handleMovement);
-			rotateBtn.disable();
 			confirmBtn.enable();
-			callback();
+			disableAllControls();
+			finishSetup();
 		} else {
-			currShip = allShipIds.shift();
-			currShipId = currShip.id;
-			currShipLength = currShip.length;
-			currShipPos.length = 0;
-			currShipPos.push(...getShipPos([3, 4], true, currShipLength));
-			dispShipOverlay(currShipPos);
+			// Pre-selects next ship.
+			const nextShip = remainingShips.shift();
+			currShip.id = nextShip.id;
+			currShip.length = nextShip.length;
+			currShip.pos.length = 0;
+			currShip.pos.push(...getShipPos([3, 4], true, nextShip.length));
+			dispShipOverlay(currShip.pos);
 		}
 	}
 
 	function dispShipOverlay(shipPos) {
+		// Displays ship pos on ocean-grid.
+		const isOccupiedAlready = currShip.pos.some(pos => player.isPosOccupied(pos));
 		oceanGrid.unhighlightAll();
-		oceanGrid.highlightCells(shipPos);
+		oceanGrid.highlightCells(shipPos, !isOccupiedAlready);
 	}
 
 	function getShipPos(head, isHorizontal, length, dirPositive = true) {
-		// Returns an array of coordinates in a certain direction.
+		// Returns an array of coordinates of given length in the given direction.
 		const posArr = [head];
 
 		if (dirPositive) {
@@ -356,6 +358,15 @@ function setupShipsManually(player, callback) {
 		}
 
 		return posArr;
+	}
+
+	function disableAllControls() {
+		document.body.removeEventListener('keydown', handleKey);
+		dpad.btnUp.removeEventListener('click', handleMovement);
+		dpad.btnLeft.removeEventListener('click', handleMovement);
+		dpad.btnRight.removeEventListener('click', handleMovement);
+		dpad.btnDown.removeEventListener('click', handleMovement);
+		rotateBtn.disable();
 	}
 }
 

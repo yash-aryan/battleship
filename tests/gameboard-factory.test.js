@@ -7,7 +7,7 @@ describe('GameboardFactory()', () => {
 	test('contains required properties', () => {
 		expect(gameboard).toStrictEqual({
 			getInfo: expect.any(Function),
-			getAllShipIDs: expect.any(Function),
+			getAllShipIds: expect.any(Function),
 			getAllOccupiedPos: expect.any(Function),
 			isPosOccupied: expect.any(Function),
 			moveShip: expect.any(Function),
@@ -36,10 +36,10 @@ describe('getInfo()', () => {
 	});
 });
 
-describe('getAllShipIDs()', () => {
+describe('getAllShipIds()', () => {
 	const gameboard = GameboardFactory();
 	test('works', () => {
-		expect(gameboard.getAllShipIDs()).toStrictEqual([
+		expect(gameboard.getAllShipIds()).toStrictEqual([
 			{ id: 0, length: 5 },
 			{ id: 1, length: 4 },
 			{ id: 2, length: 3 },
@@ -49,22 +49,22 @@ describe('getAllShipIDs()', () => {
 	});
 
 	test('does not mutate', () => {
-		gameboard.getAllShipIDs().forEach((info, index) => {
+		gameboard.getAllShipIds().forEach((info, index) => {
 			info = 'bad value';
-			expect(gameboard.getAllShipIDs()[index]).not.toBe('bad value');
+			expect(gameboard.getAllShipIds()[index]).not.toBe('bad value');
 		});
 	});
 });
 
 describe('getAllOccupiedPos()', () => {
 	const gameboard = GameboardFactory([2, 2]);
-	const ship1ID = gameboard.getAllShipIDs()[0].id;
+	const ship1ID = gameboard.getAllShipIds()[0].id;
 	gameboard.moveShip(ship1ID, [
 		[0, 0],
 		[0, 1],
 	]);
 	test('works', () => {
-		const expected = [
+		const expectedPos = [
 			[0, 0],
 			[0, 1],
 			[1, 0],
@@ -72,15 +72,15 @@ describe('getAllOccupiedPos()', () => {
 			[0, 2],
 			[1, 2],
 		];
-		expect(gameboard.getAllOccupiedPos(ship1ID).sort()).toStrictEqual(expected.sort());
+		expect(gameboard.getAllOccupiedPos(ship1ID).sort()).toStrictEqual(expectedPos.sort());
 	});
 });
 
 describe('isPosOccupied()', () => {
 	const gameboard = GameboardFactory([5, 4, 3]);
-	const ship1ID = gameboard.getAllShipIDs()[0].id;
-	const ship2ID = gameboard.getAllShipIDs()[1].id;
-	const ship3ID = gameboard.getAllShipIDs()[2].id;
+	const ship1ID = gameboard.getAllShipIds()[0].id;
+	const ship2ID = gameboard.getAllShipIds()[1].id;
+	const ship3ID = gameboard.getAllShipIds()[2].id;
 	gameboard.moveShip(ship1ID, [
 		[0, 0],
 		[0, 1],
@@ -110,9 +110,9 @@ describe('isPosOccupied()', () => {
 
 describe('getLastShotReport()', () => {
 	const gameboard = GameboardFactory([5, 4, 3]);
-	const ship1ID = gameboard.getAllShipIDs()[0].id;
-	const ship2ID = gameboard.getAllShipIDs()[1].id;
-	const ship3ID = gameboard.getAllShipIDs()[2].id;
+	const ship1ID = gameboard.getAllShipIds()[0].id;
+	const ship2ID = gameboard.getAllShipIds()[1].id;
+	const ship3ID = gameboard.getAllShipIds()[2].id;
 	gameboard.moveShip(ship1ID, [
 		[0, 0],
 		[0, 1],
@@ -144,8 +144,8 @@ describe('getLastShotReport()', () => {
 
 describe('isAllShipSunk()', () => {
 	const gameboard = GameboardFactory([2, 2]);
-	const ship1ID = gameboard.getAllShipIDs()[0].id;
-	const ship2ID = gameboard.getAllShipIDs()[1].id;
+	const ship1ID = gameboard.getAllShipIds()[0].id;
+	const ship2ID = gameboard.getAllShipIds()[1].id;
 	gameboard.moveShip(ship1ID, [
 		[4, 5],
 		[5, 5],

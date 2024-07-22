@@ -1,3 +1,10 @@
+/* 
+CTRL+F INDEX
+* GRIDS
+* D-PAD
+* MEDIA QUERIES
+*/
+
 :root {
 	--dpad-btn-rad: 8px;
 	--btn-rad: 8px;
@@ -39,7 +46,7 @@ p {
 	display: flex;
 }
 
-/* grid */
+/* GRIDS */
 .grid-wrap {
 	display: flex;
 	flex-direction: column;
@@ -65,8 +72,11 @@ p {
 .grid__cell--occupied {
 	background-color: lightblue;
 }
-.grid__cell--highlighted {
+.grid__cell--valid {
 	background-color: rgba(202, 155, 12, 0.31);
+}
+.grid__cell--invalid {
+	background-color: rgba(202, 66, 12, 0.31);
 }
 .grid__cell--occupied.hit,
 .grid__cell--hit {
@@ -85,7 +95,7 @@ p {
 	gap: 4rem;
 }
 
-/* d-pad */
+/* D-PAD */
 .d-pad {
 	aspect-ratio: 1;
 	display: grid;
@@ -198,7 +208,7 @@ p {
 	display: none;
 }
 
-/* upper limit on high res displays */
+/* MEDIA QUERIES */
 @media screen and (min-width: 1920px) {
 	:root {
 		font-size: 1vw;

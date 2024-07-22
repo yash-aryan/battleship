@@ -1,4 +1,5 @@
 {
+  "private": true,
   "name": "battleship",
   "version": "1.0.0",
   "description": "In this project I created a game of battleship.",

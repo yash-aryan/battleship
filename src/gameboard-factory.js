@@ -27,7 +27,7 @@ export function GameboardFactory(shipInputs = [5, 4, 3, 3, 2]) {
 	}
 
 	function getAllShipIds() {
-		return allShipIds;
+		return [...allShipIds];
 	}
 
 	function moveShip(id, posArr) {
