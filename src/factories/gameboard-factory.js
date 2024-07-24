@@ -1,17 +1,16 @@
 'use strict';
 
-import { ShipFactory } from './ship-factory';
+import ShipFactory from './ship-factory';
 
-export function GameboardFactory(shipInputs = [5, 4, 3, 3, 2]) {
+export default function GameboardFactory() {
 	const incomingShots = [],
 		incomingHits = [],
 		incomingMisses = [],
 		allShips = [],
 		allShipIds = [];
-	let remainingShips,
-		lastShotReport = null;
+	let remainingShips;
 
-	shipInputs.forEach((input, index) => {
+	[5, 4, 3, 3, 2].forEach((input, index) => {
 		const ship = ShipFactory(input);
 		allShipIds.push({ id: index, length: ship.getInfo().length });
 		allShips.push(ship);
@@ -28,6 +27,16 @@ export function GameboardFactory(shipInputs = [5, 4, 3, 3, 2]) {
 
 	function getAllShipIds() {
 		return [...allShipIds];
+	}
+
+	function getShipAtPos(pos) {
+		const shipId = allShips.findIndex(ship => ship.isHit(pos));
+		const shipInfo = allShips[shipId].getInfo();
+		return {
+			...allShipIds[shipId],
+			isHorizontal: shipInfo.isHorizontal,
+			hitbox: shipInfo.hitbox,
+		};
 	}
 
 	function moveShip(id, posArr) {
@@ -48,21 +57,18 @@ export function GameboardFactory(shipInputs = [5, 4, 3, 3, 2]) {
 		incomingShots.push(pos);
 		const targetShip = getTargetShip(pos);
 
-		if (targetShip) {
-			targetShip.hit();
-			incomingHits.push(pos);
-			if (targetShip.isSunk()) {
-				--remainingShips;
-				lastShotReport = 'sunk';
-			} else lastShotReport = 'hit';
-		} else {
+		if (!targetShip) {
 			incomingMisses.push(pos);
-			lastShotReport = 'miss';
+			return 'miss';
 		}
-	}
+		targetShip.hit();
+		incomingHits.push(pos);
 
-	function getLastShotReport() {
-		return lastShotReport;
+		if (targetShip.isSunk()) {
+			--remainingShips;
+			return 'sunk';
+		}
+		return 'hit';
 	}
 
 	function isAllShipSunk() {
@@ -78,11 +84,11 @@ export function GameboardFactory(shipInputs = [5, 4, 3, 3, 2]) {
 	return {
 		getInfo,
 		getAllShipIds,
+		getShipAtPos,
 		getAllOccupiedPos,
 		isPosOccupied,
 		moveShip,
 		receiveAttack,
-		getLastShotReport,
 		isAllShipSunk,
 	};
 }

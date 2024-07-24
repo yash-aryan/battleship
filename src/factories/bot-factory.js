@@ -6,11 +6,11 @@ Bot has 3 phases:
 - orientation phase: To find orientation(horizontal/vertical) on the same enemy ship by getting 2nd hit.
 - follow-up phase: To shoot follow-up hits in the same orientation until sunk.
 
-After every shot, bot must be notified of it's last shot report.
+The bot must be notified the outcome of it's previous shot after attacking.
 New shots are queued in advanced during each phase, and queue is cleared when advancing into next phase.
 */
 
-export function BotFactory() {
+export default function BotFactory() {
 	const exploredPos = [],
 		posQueue = [getRandomShot()],
 		directionQueue = [];

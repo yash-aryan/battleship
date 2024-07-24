@@ -1,10 +1,11 @@
 'use strict';
 
+// MARK: ocean grid
 export const oceanGrid = (() => {
 	const gridId = 'ocean-grid';
 
-	function create() {
-		const gridWrap = getGrid('My Screen');
+	function create(title = 'My Screen') {
+		const gridWrap = getGrid(title);
 		gridWrap.id = gridId;
 		gridWrap.classList.add('grid-wrap--ocean');
 		document.querySelector('#js-ocean-parent').append(gridWrap);
@@ -58,10 +59,8 @@ export const oceanGrid = (() => {
 		cell.classList.add('grid__cell--miss');
 	}
 
-	function reset() {
-		getElement()
-			.querySelectorAll('.grid__cell')
-			.forEach(cell => (cell.className = 'grid__cell'));
+	function remove() {
+		getElement().closest('.grid-wrap').remove();
 	}
 
 	return {
@@ -74,15 +73,16 @@ export const oceanGrid = (() => {
 		markOccupied,
 		markHit,
 		markMiss,
-		reset,
+		remove,
 	};
 })();
 
+// MARK: target grid
 export const targetGrid = (() => {
 	const gridId = 'target-grid';
 
-	function create() {
-		const gridWrap = getGrid('Enemy Screen');
+	function create(title = 'Enemy Screen') {
+		const gridWrap = getGrid(title);
 		gridWrap.id = gridId;
 		gridWrap.classList.add('grid-wrap--target');
 		document.querySelector('#js-target-parent').append(gridWrap);
@@ -90,6 +90,14 @@ export const targetGrid = (() => {
 
 	function getElement() {
 		return document.getElementById(gridId);
+	}
+
+	function enable() {
+		getElement().removeAttribute('disabled');
+	}
+
+	function disable() {
+		getElement().setAttribute('disabled', '');
 	}
 
 	function isCell(node) {
@@ -118,6 +126,8 @@ export const targetGrid = (() => {
 	return {
 		create,
 		getElement,
+		enable,
+		disable,
 		isCell,
 		isCellMarked,
 		markHit,
@@ -126,6 +136,7 @@ export const targetGrid = (() => {
 	};
 })();
 
+// MARK: get grid
 function getGrid(titleText) {
 	let posX = 0,
 		posY = 9;

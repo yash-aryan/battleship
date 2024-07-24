@@ -1,182 +1,130 @@
 'use strict';
-
 import './style.css';
-import { BotFactory } from './bot-factory';
-import { GameboardFactory } from './gameboard-factory';
+import GameboardFactory from './factories/gameboard-factory';
 import { oceanGrid, targetGrid } from './dom-handlers/grids';
 import { allControls, confirmBtn, dpad, rotateBtn } from './dom-handlers/controls';
 import { result } from './dom-handlers/result';
 
-main();
-function main() {
-	const shipLengths = [5, 4, 3, 3, 2];
-	let attacker = { name: 'Player', isHuman: true, ...GameboardFactory() },
-		defender = { name: 'Bot Azur', isHuman: false, ...GameboardFactory() },
-		botHandler = BotFactory(),
-		isSetupFinished = false;
+// MARK: start game
+startGame();
+async function startGame() {
+	const player1 = { name: 'Player', ...GameboardFactory() };
+	const player2 = { name: 'Bot Azur', ...GameboardFactory() };
 
 	oceanGrid.create();
-	confirmBtn.disable();
-	setupShipsBot(defender, shipLengths);
-	setupShipsManually(attacker, () => (isSetupFinished = true));
-	confirmBtn.getElem().addEventListener('click', startShootPhase);
 
-	function startShootPhase() {
-		if (!isSetupFinished) return;
+	playAgainstBot(player1, player2);
+}
 
-		allControls.hide();
-		targetGrid.create();
+// MARK: vs bot logic
+async function playAgainstBot(human, bot) {
+	const botModule = await import('./factories/bot-factory');
+	const botHandler = botModule.default();
+	await Promise.all([setupShipsBot(bot), setupShipsManually(human)]);
+	allControls.hide();
+	targetGrid.create();
 
-		const gridNode = targetGrid.getElement();
-		const clickedCells = [];
-		let winner = null,
-			loser = null,
-			roundIsOngoing = false;
+	await attackHuman(); // bot moves first
 
-		gridNode.addEventListener('click', handleClicks);
+	targetGrid.getElement().addEventListener('click', allowPlayerAttack);
 
-		function handleClicks(event) {
-			if (!targetGrid.isCell(event.target)) return;
-			if (targetGrid.isCellMarked(event.target)) return;
-			if (roundIsOngoing) return;
-
-			roundIsOngoing = true;
-			const cell = event.target;
-			if (clickedCells.includes(cell)) return;
-			clickedCells.push(cell);
-
-			shootAt([+cell.dataset.posX, +cell.dataset.posY]);
-			dispShotReport(cell, getLastShotReport(), true);
-			checkForWinner();
-
-			switchAttackers();
-
-			botShootsAfter(1000);
-
-			async function botShootsAfter(artificialDelay_ms = 0) {
-				const botPos = await new Promise(res => {
-					setTimeout(() => res(botHandler.generateShot()), artificialDelay_ms);
-				});
-				shootAt(botPos);
-				const shotReport = getLastShotReport();
-				notifyShotReportToBot(shotReport);
-				dispShotReport(oceanGrid.getCell(botPos), shotReport, false);
-				checkForWinner();
-				switchAttackers();
-				roundIsOngoing = false;
-			}
+	async function allowPlayerAttack(event) {
+		const cell = event.target;
+		if (!targetGrid.isCell(cell) || targetGrid.isCellMarked(cell)) {
+			return;
 		}
 
-		function notifyShotReportToBot(shotReport) {
-			switch (shotReport) {
-				case 'miss':
-					botHandler.notifyMiss();
-					break;
-				case 'hit':
-					botHandler.notifyHit();
-					break;
-				case 'sunk':
-					botHandler.notifyHitAndSunk();
-					break;
-			}
+		targetGrid.disable(); // prevent additional clicks
+		const outcome = bot.receiveAttack([+cell.dataset.posX, +cell.dataset.posY]);
+
+		if (outcome === 'miss') targetGrid.markMiss(cell);
+		else targetGrid.markHit(cell);
+
+		if (bot.isAllShipSunk()) {
+			targetGrid.disable();
+			return finishGame(human, bot, true);
 		}
 
-		function shootAt(pos) {
-			defender.receiveAttack(pos);
-			if (isWinnerFound()) {
-				winner = attacker;
-				loser = defender;
-			}
+		await attackHuman();
+
+		if (human.isAllShipSunk()) {
+			targetGrid.disable();
+			return finishGame(bot, human, false);
 		}
 
-		function isWinnerFound() {
-			return defender.isAllShipSunk();
-		}
-
-		function getLastShotReport() {
-			return defender.getLastShotReport();
-		}
-
-		function checkForWinner() {
-			if (!isWinnerFound()) return;
-
-			gridNode.removeEventListener('click', handleClicks);
-			finishGame(winner, loser);
-		}
-
-		function switchAttackers() {
-			const temp = attacker;
-			attacker = defender;
-			defender = temp;
-		}
+		targetGrid.enable();
 	}
 
-	function finishGame(winner, loser) {
-		// Sends match results to dom-handler to display it on result screen.
-		// Player can also choose to reset game, and play again.
-		const hitCountWinner = loser.getInfo().hitsTaken.length,
-			hitCountLoser = winner.getInfo().hitsTaken.length,
-			allShotsWinner = hitCountWinner + loser.getInfo().avoided.length,
-			allShotsLoser = hitCountLoser + winner.getInfo().avoided.length;
+	async function attackHuman() {
+		const coords = await new Promise(resolve => {
+			// Generates coordinates after 1000ms.
+			setTimeout(() => resolve(botHandler.generateShot()), 0);
+		});
+		const outcome = human.receiveAttack(coords);
 
-		result.show(
-			winner.name,
-			loser.name,
-			getAccuracyRate(hitCountWinner, allShotsWinner),
-			getAccuracyRate(hitCountLoser, allShotsLoser),
-			winner.isHuman
-		);
-
-		result.getResetBtn().addEventListener('click', resetGame, { once: true });
-
-		function resetGame() {
-			// Resets all stored states for a new game.
-			attacker = { name: 'Player', isHuman: true, ...GameboardFactory() };
-			defender = { name: 'Bot Azur', isHuman: false, ...GameboardFactory() };
-			botHandler = BotFactory();
-			oceanGrid.reset();
-			targetGrid.remove();
-			setupShipsBot(defender, shipLengths);
-			allControls.show();
-			rotateBtn.enable();
-			confirmBtn.disable();
-			setupShipsManually(attacker, confirmBtn.enable);
-			result.hide();
-		}
-
-		function getAccuracyRate(hits, total) {
-			return Math.round((hits / total) * 100);
+		switch (outcome) {
+			case 'miss':
+				botHandler.notifyMiss();
+				oceanGrid.markMiss(oceanGrid.getCell(coords));
+				break;
+			case 'hit':
+				botHandler.notifyHit();
+				oceanGrid.markHit(oceanGrid.getCell(coords));
+				break;
+			case 'sunk':
+				botHandler.notifyHitAndSunk();
+				oceanGrid.markHit(oceanGrid.getCell(coords));
+				break;
 		}
 	}
 }
 
-function dispShotReport(cell, shotReport, attackerIsHuman) {
-	// Marks the grid cell of appropriate grid with appropriate shot report.
-	const grid = attackerIsHuman ? targetGrid : oceanGrid;
+// MARK: finish game
+function finishGame(winner, loser, didHumanWin) {
+	// Sends match results to dom-handler to display it on result screen.
+	// Player can also choose to reset game, and play again.
+	const hitCountWinner = loser.getInfo().hitsTaken.length,
+		hitCountLoser = winner.getInfo().hitsTaken.length,
+		allShotsWinner = hitCountWinner + loser.getInfo().avoided.length,
+		allShotsLoser = hitCountLoser + winner.getInfo().avoided.length;
 
-	switch (shotReport) {
-		case 'miss':
-			grid.markMiss(cell);
-			break;
-		case 'hit':
-			grid.markHit(cell);
-			break;
-		case 'sunk':
-			grid.markHit(cell);
-			break;
+	result.show(
+		winner.name,
+		loser.name,
+		getAccuracyRate(hitCountWinner, allShotsWinner),
+		getAccuracyRate(hitCountLoser, allShotsLoser),
+		didHumanWin
+	);
+
+	result.getResetBtn().addEventListener('click', resetGame, { once: true });
+
+	function resetGame() {
+		// Resets state to defaullt.
+		oceanGrid.remove();
+		targetGrid.remove();
+		allControls.show();
+		result.hide();
+		startGame();
+	}
+
+	function getAccuracyRate(hits, total) {
+		return Math.round((hits / total) * 100);
 	}
 }
 
-function setupShipsBot(player, shipLengths) {
+// MARK: bot ship setup
+async function setupShipsBot(bot) {
 	// Generates new & random ship placements.
 	const allShipPos = [];
 
-	shipLengths.forEach((length, index) => {
-		const botShipId = player.getAllShipIds()[index].id;
+	[5, 4, 3, 3, 2].forEach((length, index) => {
+		const botShipId = bot.getAllShipIds()[index].id;
 		const shipPos = generateShipPos(length, allShipPos);
-		player.moveShip(botShipId, shipPos);
-		allShipPos.push(...player.getAllOccupiedPos(botShipId));
+		bot.moveShip(botShipId, shipPos);
+		allShipPos.push(...bot.getAllOccupiedPos(botShipId));
 	});
+
+	return new Promise(resolve => resolve(true));
 
 	function generateShipPos(shipLength, allOccupiedPos) {
 		const shipPos = [],
@@ -212,7 +160,7 @@ function setupShipsBot(player, shipLengths) {
 					generated.push(newPos);
 				}
 			}
-			return generated.filter(pos => isValidPos(pos) && !isPosOccupied(pos));
+			return generated.filter(pos => isInbounds(pos) && !isPosOccupied(pos));
 		}
 
 		function isPosOccupied(inputPos) {
@@ -228,9 +176,11 @@ function setupShipsBot(player, shipLengths) {
 	}
 }
 
-function setupShipsManually(player, finishSetup) {
-	// Lets user place all the ships one-by-one, and then allow confirmation.
+// MARK: manual ship setup
+function setupShipsManually(player) {
+	// Lets user place all the ships one-by-one.
 
+	confirmBtn.disable();
 	const [firstShip, ...remainingShips] = player.getAllShipIds();
 	// Pre-selects first ship as current ship to be placed.
 	const currShip = {
@@ -242,30 +192,38 @@ function setupShipsManually(player, finishSetup) {
 
 	// Display the first pre-selected ship
 	dispShipOverlay(currShip.pos);
+	enableAllControls();
 
-	document.body.addEventListener('keydown', handleKey);
-	dpad.btnUp.addEventListener('click', handleDpadClick);
-	dpad.btnLeft.addEventListener('click', handleDpadClick);
-	dpad.btnRight.addEventListener('click', handleDpadClick);
-	dpad.btnDown.addEventListener('click', handleDpadClick);
-	dpad.btnMid.addEventListener('click', handlePlacement);
-	rotateBtn.getElem().addEventListener('click', handleRotation);
+	return new Promise(resolve => {
+		confirmBtn.getElement().addEventListener('click', confirmPlacement, { once: true });
+
+		function confirmPlacement() {
+			confirmBtn.disable();
+			resolve(true);
+		}
+	});
 
 	function handleDpadClick(e) {
-		handleMovement(e.target.dataset.input);
+		const btn = e.target;
+		if (!dpad.isBtn(btn)) return;
+		if (btn.dataset.input === 'mid') return handlePlacement();
+
+		handleMovement(btn.dataset.input);
 	}
 
-	function handleKey(e) {
-		if (e.key === ' ') return;
+	function handleKeyboard(e) {
+		const key = e.key;
+		if (key === ' ') return handleRotation();
+		if (key === 'Enter') return handlePlacement();
 
-		handleMovement(e.key);
+		handleMovement(key);
 	}
 
-	function handleMovement(dir) {
+	function handleMovement(direction) {
 		// Moves the ship in given direction.
 		let copy = [...currShip.pos];
 
-		switch (dir) {
+		switch (direction) {
 			case 'ArrowUp':
 			case 'up':
 				copy = copy.map(pos => [pos[0], pos[1] + 1]);
@@ -288,7 +246,7 @@ function setupShipsManually(player, finishSetup) {
 		}
 
 		// Returns if any pos is out of bounds.
-		if (!copy.every(pos => isValidPos(pos))) return;
+		if (!copy.every(pos => isInbounds(pos))) return;
 
 		currShip.pos.length = 0;
 		currShip.pos.push(...copy);
@@ -304,7 +262,7 @@ function setupShipsManually(player, finishSetup) {
 		const rotation2 = getShipPos(copy[0], !currShip.isHorizontal, copy.length, false);
 
 		// Gets the valid rotation outcome.
-		copy = rotation1.every(pos => isValidPos(pos)) ? rotation1 : rotation2;
+		copy = rotation1.every(pos => isInbounds(pos)) ? rotation1 : rotation2;
 
 		currShip.isHorizontal = !currShip.isHorizontal;
 		currShip.pos.length = 0;
@@ -319,15 +277,18 @@ function setupShipsManually(player, finishSetup) {
 		oceanGrid.markOccupied(currShip.pos);
 
 		if (remainingShips.length === 0) {
-			oceanGrid.unhighlightAll();
-			confirmBtn.enable();
 			disableAllControls();
-			finishSetup();
+			oceanGrid.unhighlightAll();
+			for (const key in currShip) {
+				currShip[key] = null;
+			}
+			confirmBtn.enable();
 		} else {
 			// Pre-selects next ship.
 			const nextShip = remainingShips.shift();
 			currShip.id = nextShip.id;
 			currShip.length = nextShip.length;
+			currShip.isHorizontal = true;
 			currShip.pos.length = 0;
 			currShip.pos.push(...getShipPos([3, 4], true, nextShip.length));
 			dispShipOverlay(currShip.pos);
@@ -360,17 +321,25 @@ function setupShipsManually(player, finishSetup) {
 		return posArr;
 	}
 
+	function enableAllControls() {
+		document.body.addEventListener('keydown', handleKeyboard);
+		dpad.getElement().addEventListener('click', handleDpadClick);
+		rotateBtn.getElement().addEventListener('click', handleRotation);
+		dpad.enable();
+		rotateBtn.enable();
+	}
+
 	function disableAllControls() {
-		document.body.removeEventListener('keydown', handleKey);
-		dpad.btnUp.removeEventListener('click', handleMovement);
-		dpad.btnLeft.removeEventListener('click', handleMovement);
-		dpad.btnRight.removeEventListener('click', handleMovement);
-		dpad.btnDown.removeEventListener('click', handleMovement);
+		document.body.removeEventListener('keydown', handleKeyboard);
+		dpad.getElement().removeEventListener('click', handleDpadClick);
+		rotateBtn.getElement().removeEventListener('click', handleRotation);
+		dpad.disable();
 		rotateBtn.disable();
 	}
 }
 
-function isValidPos(inputPos) {
+function isInbounds(inputPos) {
+	// Checks if pos coordinates is within the grid.
 	if (inputPos[0] >= 0 && inputPos[0] < 10 && inputPos[1] >= 0 && inputPos[1] < 10) {
 		return true;
 	}

@@ -1,6 +1,6 @@
 'use strict';
 
-import { BotFactory } from '../src/bot-factory';
+import BotFactory from '../src/factories/bot-factory';
 
 describe('bot', () => {
 	const bot = BotFactory();

@@ -110,11 +110,16 @@ p {
 	border-radius: var(--dpad-btn-rad);
 	cursor: pointer;
 }
-.d-pad__btn:hover {
+.d-pad__btn:hover:enabled {
 	border-color: #d9d9d9;
 }
-.d-pad__btn:active {
+.d-pad__btn:active:enabled {
 	border-color: transparent;
+}
+.d-pad__btn:disabled {
+	border-color: transparent;
+	opacity: 40%;
+	cursor: unset;
 }
 .d-pad__up-btn {
 	grid-row: 1;

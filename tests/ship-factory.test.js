@@ -1,6 +1,6 @@
 'use strict';
 
-import { ShipFactory } from '../src/ship-factory';
+import ShipFactory from '../src/factories/ship-factory';
 
 describe('ShipFactory()', () => {
 	test('contains required properties', () => {

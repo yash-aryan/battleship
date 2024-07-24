@@ -1,6 +1,6 @@
 'use strict';
 
-export function ShipFactory(length) {
+export default function ShipFactory(length) {
 	let hitCount = 0,
 		isHorizontal = null;
 	const hitbox = [],
