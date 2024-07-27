@@ -2,38 +2,42 @@
 
 export const result = (() => {
 	function show(winnerName, loserName, winnerAccuracy, loserAccuracy, isHumanWinner) {
-		const modal = getElem(),
-			titleNode = modal.querySelector('#js-res-title'),
-			summaryNode = modal.querySelector('#js-res-summary'),
-			p1NameAccuracyNode = modal.querySelector('#js-res-p1name'),
-			p1AccuracyRateNode = modal.querySelector('#js-res-p1acc'),
-			p2NameAccuracyNode = modal.querySelector('#js-res-p2name'),
-			p2AccuracyRateNode = modal.querySelector('#js-res-p2acc');
+		const modal = getElement(),
+			title = modal.querySelector('#result-title'),
+			summary = modal.querySelector('#result-summary'),
+			p1Name = modal.querySelector('.stats__p1-name'),
+			p1Accuracy = modal.querySelector('#p1-accuracy'),
+			p2Name = modal.querySelector('.stats__p2-name'),
+			p2Accuracy = modal.querySelector('#p2-accuracy');
 
 		if (isHumanWinner) {
-			titleNode.textContent = 'Brilliant!';
-			summaryNode.textContent = `${winnerName} destroys ${loserName}!`;
+			title.classList.add('win');
+			title.textContent = '> Brilliant!';
+			summary.textContent = `${winnerName} destroys ${loserName}!`;
 		} else {
-			titleNode.textContent = 'Unlucky!';
-			summaryNode.textContent = `${winnerName} washes ${loserName}!`;
+			title.classList.add('loss');
+			title.textContent = '> Unlucky!';
+			summary.textContent = `${winnerName} washes ${loserName}!`;
 		}
-		p1NameAccuracyNode.textContent = winnerName;
-		p2NameAccuracyNode.textContent = loserName;
-		p1AccuracyRateNode.textContent = `${winnerAccuracy}%`;
-		p2AccuracyRateNode.textContent = `${loserAccuracy}%`;
+		p1Name.textContent = winnerName;
+		p2Name.textContent = loserName;
+		p1Accuracy.textContent = `${winnerAccuracy}%`;
+		p2Accuracy.textContent = `${loserAccuracy}%`;
 		modal.showModal();
 	}
 
 	function hide() {
-		getElem().close();
+		getElement().close();
+		const title = getElement().querySelector('#result-title');
+		title.classList.remove('win', 'loss');
 	}
 
 	function getResetBtn() {
-		return document.querySelector('#res-btn');
+		return document.querySelector('#result-btn');
 	}
 
-	function getElem() {
-		return document.querySelector('#js-res-modal');
+	function getElement() {
+		return document.querySelector('#result-modal');
 	}
 
 	return {

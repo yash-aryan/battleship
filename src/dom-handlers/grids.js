@@ -3,28 +3,25 @@
 // MARK: ocean grid
 export const oceanGrid = (() => {
 	const gridId = 'ocean-grid';
+	const containerId = 'grid-container--ocean';
 
-	function create(title = 'My Screen') {
-		const gridWrap = getGrid(title);
-		gridWrap.id = gridId;
-		gridWrap.classList.add('grid-wrap--ocean');
-		document.querySelector('#js-ocean-parent').append(gridWrap);
+	function create(title = '> Friendly Waters') {
+		const section = createGrid(title);
+		section.id = containerId;
+		section.lastChild.id = gridId;
+		document.querySelector('#main').append(section);
 	}
-
 	function getElement() {
 		return document.getElementById(gridId);
 	}
-
 	function getCell(pos) {
 		const grid = getElement();
 		return grid.querySelector(`[data-pos-x="${pos[0]}"][data-pos-y="${pos[1]}"]`);
 	}
-
 	function isCell(node) {
 		if (node.classList.contains('grid__cell')) return true;
 		return false;
 	}
-
 	function highlightCells(posArr, isValid) {
 		const grid = getElement();
 		posArr.forEach(pos => {
@@ -33,16 +30,12 @@ export const oceanGrid = (() => {
 			cell.classList.add(highlightClass);
 		});
 	}
-
 	function unhighlightAll() {
-		getElement()
-			.querySelectorAll('.grid__cell')
-			.forEach(cell => {
-				cell.classList.remove('grid__cell--valid');
-				cell.classList.remove('grid__cell--invalid');
-			});
+		getElement().childNodes.forEach(cell => {
+			cell.classList.remove('grid__cell--valid');
+			cell.classList.remove('grid__cell--invalid');
+		});
 	}
-
 	function markOccupied(posArr) {
 		const grid = getElement();
 		posArr.forEach(pos => {
@@ -50,17 +43,18 @@ export const oceanGrid = (() => {
 			cell.classList.add('grid__cell--occupied');
 		});
 	}
-
 	function markHit(cell) {
 		cell.classList.add('grid__cell--hit');
 	}
-
 	function markMiss(cell) {
 		cell.classList.add('grid__cell--miss');
 	}
-
-	function remove() {
-		getElement().closest('.grid-wrap').remove();
+	function adjust() {
+		// Adjusts grid to its smaller version.
+		getElement().classList.add('small');
+	}
+	function destroy() {
+		document.getElementById(containerId).remove();
 	}
 
 	return {
@@ -73,83 +67,72 @@ export const oceanGrid = (() => {
 		markOccupied,
 		markHit,
 		markMiss,
-		remove,
+		adjust,
+		destroy,
 	};
 })();
 
 // MARK: target grid
 export const targetGrid = (() => {
 	const gridId = 'target-grid';
+	const containerId = 'grid-container--target';
 
-	function create(title = 'Enemy Screen') {
-		const gridWrap = getGrid(title);
-		gridWrap.id = gridId;
-		gridWrap.classList.add('grid-wrap--target');
-		document.querySelector('#js-target-parent').append(gridWrap);
+	function create(title = '> Enemy Waters') {
+		const section = createGrid(title, 'button');
+		section.id = containerId;
+		section.lastChild.id = gridId;
+		document.querySelector('#main').append(section);
 	}
-
 	function getElement() {
 		return document.getElementById(gridId);
 	}
-
-	function enable() {
-		getElement().removeAttribute('disabled');
+	function disable(state = true) {
+		getElement().childNodes.forEach(cell => (cell.disabled = state));
 	}
-
-	function disable() {
-		getElement().setAttribute('disabled', '');
-	}
-
 	function isCell(node) {
 		if (node.classList.contains('grid__cell')) return true;
 		return false;
 	}
-
 	function isCellMarked(node) {
 		if (node.classList.contains('grid__cell--hit') || node.classList.contains('grid__cell--miss'))
 			return true;
 		return false;
 	}
-
 	function markHit(cell) {
 		cell.classList.add('grid__cell--hit');
 	}
-
 	function markMiss(cell) {
 		cell.classList.add('grid__cell--miss');
 	}
-
-	function remove() {
-		getElement().closest('.grid-wrap').remove();
+	function destroy() {
+		document.getElementById(containerId).remove();
 	}
 
 	return {
 		create,
 		getElement,
-		enable,
 		disable,
 		isCell,
 		isCellMarked,
 		markHit,
 		markMiss,
-		remove,
+		destroy,
 	};
 })();
 
 // MARK: get grid
-function getGrid(titleText) {
-	let posX = 0,
-		posY = 9;
-
+function createGrid(titleText, gridCellElement = 'div') {
 	const gridNode = document.createElement('div');
 	gridNode.classList.add('grid');
+	let posX = 0;
+	let posY = 9;
+
 	for (let i = 0; i < 100; i++) {
 		if (posX > 9) {
 			posX = 0;
 			--posY;
 		}
-
-		const gridCell = document.createElement('div');
+		const gridCell = document.createElement(gridCellElement);
 		gridCell.classList.add('grid__cell');
 		gridCell.dataset.posX = posX;
 		gridCell.dataset.posY = posY;
@@ -158,11 +141,11 @@ function getGrid(titleText) {
 	}
 
 	const titleNode = document.createElement('h2');
-	titleNode.classList.add('grid__title');
+	titleNode.classList.add('grid__title', 'heading');
 	titleNode.textContent = titleText;
 
-	const gridWrap = document.createElement('div');
-	gridWrap.classList.add('grid-wrap');
-	gridWrap.append(titleNode, gridNode);
-	return gridWrap;
+	const section = document.createElement('section');
+	section.classList.add('grid-container');
+	section.append(titleNode, gridNode);
+	return section;
 }

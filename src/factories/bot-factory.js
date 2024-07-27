@@ -1,4 +1,5 @@
 'use strict';
+import { getRandomInt, isInbounds } from '../utils/utils';
 
 /*
 Bot has 3 phases:
@@ -90,7 +91,7 @@ export default function BotFactory() {
 
 		function pushValidAdjacents(adjacent, direction) {
 			// Early exit on any invalid or repeated pos.
-			if (!isValidPos(adjacent) || !isUniquePos(exploredPos, adjacent)) return;
+			if (!isInbounds(adjacent) || !isUniquePos(exploredPos, adjacent)) return;
 
 			adjacents.push(adjacent);
 			directionQueue.push(direction);
@@ -140,7 +141,7 @@ export default function BotFactory() {
 				break;
 		}
 
-		return allPos.filter(pos => isValidPos(pos) && isUniquePos(exploredPos, pos));
+		return allPos.filter(pos => isInbounds(pos) && isUniquePos(exploredPos, pos));
 	}
 
 	function getOppositeDirection(direction) {
@@ -169,22 +170,9 @@ export default function BotFactory() {
 		return newPos;
 	}
 
-	function isValidPos(inputPos) {
-		// Returns TRUE if both X & Y coordinates are within grid limits; else returns FALSE.
-		if (inputPos[0] >= 0 && inputPos[0] < 10 && inputPos[1] >= 0 && inputPos[1] < 10) {
-			return true;
-		}
-		return false;
-	}
-
 	function isUniquePos(allPos, inputPos) {
 		// Returns TRUE if allPos does not contain the inputPos; else returns FALSE.
 		return !allPos.some(pos => pos[0] === inputPos[0] && pos[1] === inputPos[1]);
-	}
-
-	function getRandomInt(max) {
-		// Returns random INT from 0 upto max.
-		return Math.floor(Math.random() * max);
 	}
 
 	return {

@@ -6,7 +6,6 @@ Iconic game of ["Battleship"](<https://en.wikipedia.org/wiki/Battleship_(game)>)
 
 ### [View Live Demo](https://yash-aryan.github.io/Battleship/)
 
-- This is the work-in-progress GUI version of the game
 - The Game is played against the bot.
 - Used Jest for unit-testing the interface of factory functions.
 - Used Webpack for bundling the files required to create this project.
