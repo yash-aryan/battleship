@@ -2,15 +2,23 @@
 
 ## Overview
 
-Iconic game of ["Battleship"](<https://en.wikipedia.org/wiki/Battleship_(game)>) created using vanilla JavaScript, with a fully responsive layout & enemy bot.
+Iconic game of ["Battleship"](<https://en.wikipedia.org/wiki/Battleship_(game)>) created using HTML/CSS/JavaScript (no frameworks), with a fully responsive design.
 
-### [View Live Demo](https://yash-aryan.github.io/Battleship/)
-
-- The Game is played against the bot.
+- The game is played against the bot.
 - Used Jest for unit-testing the interface of factory functions.
 - Used Webpack for bundling the files required to create this project.
 - `dist/` directory contains output files: `index.html`, `bundle.js` (minified code)
 - `src/` directory contains the non-bundled code.
+
+### [View Live Demo](https://yash-aryan.github.io/Battleship/)
+
+<a href="https://yash-aryan.github.io/Battleship/" target="_blank" rel="noopener noreferrer">
+  <img src="./screenshots/responsive.gif" alt="Gif showing responsive UI of Battleship app" width="600px">
+</a>
+
+### Unit Tests Results
+
+<img src="./screenshots//tests.jpg" alt="Screenshot showing unit-test results" width="600px">
 
 ## Features
 
