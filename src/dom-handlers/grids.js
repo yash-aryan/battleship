@@ -9,7 +9,7 @@ export const oceanGrid = (() => {
 		const section = createGrid(title);
 		section.id = containerId;
 		section.lastChild.id = gridId;
-		document.querySelector('#main').append(section);
+		document.querySelector('#grids').append(section);
 	}
 	function getElement() {
 		return document.getElementById(gridId);
@@ -50,8 +50,8 @@ export const oceanGrid = (() => {
 		cell.classList.add('grid__cell--miss');
 	}
 	function adjust() {
-		// Adjusts grid to its smaller version.
-		getElement().classList.add('small');
+		// Adjusts grid size.
+		getElement().classList.add('adjusted');
 	}
 	function destroy() {
 		document.getElementById(containerId).remove();
@@ -81,7 +81,7 @@ export const targetGrid = (() => {
 		const section = createGrid(title, 'button');
 		section.id = containerId;
 		section.lastChild.id = gridId;
-		document.querySelector('#main').append(section);
+		document.querySelector('#grids').append(section);
 	}
 	function getElement() {
 		return document.getElementById(gridId);

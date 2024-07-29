@@ -50,4 +50,4 @@ Iconic game of ["Battleship"](<https://en.wikipedia.org/wiki/Battleship_(game)>)
 - [x] Update bot to shoot adjacent cells after hit.
 - [x] Create logic for the player to place ships.
 - [x] Create logic for the bot to generate new ship placement.
-- [ ] Update UI.
+- [x] Update UI.
