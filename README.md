@@ -10,7 +10,7 @@ Iconic game of ["Battleship"](<https://en.wikipedia.org/wiki/Battleship_(game)>)
 - `dist/` directory contains output files: `index.html`, `bundle.js` (minified code)
 - `src/` directory contains the non-bundled code.
 
-### [View Live Demo](https://yash-aryan.github.io/Battleship/)
+### [View Live Demo](https://yash-aryan.github.io/battleship/)
 
 <a href="https://yash-aryan.github.io/Battleship/" target="_blank" rel="noopener noreferrer">
   <img src="./screenshots/responsive.gif" alt="Gif showing responsive UI of Battleship app" width="600px">
